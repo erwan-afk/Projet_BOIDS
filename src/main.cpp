@@ -11,7 +11,7 @@ int main()
         return EXIT_FAILURE;
 
     // Actual application code
-    auto ctx = p6::Context{{.title = "Projet_P6_THIBAUD_Erwan"}};
+    auto ctx = p6::Context{{.title = "Projet_BOIDS"}};
     ctx.maximize_window();
 
     // Declare your infinite update loop.
@@ -28,3 +28,4 @@ int main()
     // Should be done last. It starts the infinite loop.
     ctx.start();
 }
+
