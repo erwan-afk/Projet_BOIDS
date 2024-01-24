@@ -3,20 +3,21 @@
 This template contains all the things you need to get started with a clean and modern C++ project (formatter, linter, tests, continuous integration, etc.).
 **It works on all platforms (Windows, Linux, MacOS).**
 
-- [Setting up](#setting-up)
-  - [Creating a repository](#creating-a-repository)
-  - [Downloading your repository](#downloading-your-repository)
-  - [Compiling](#compiling)
-  - [Clangd](#clangd)
-  - [Formatter](#formatter)
-  - [Linter](#linter)
-- [Coding](#coding)
-  - [Renaming the project](#renaming-the-project)
-  - [Folder structure](#folder-structure)
-  - [p6](#p6)
-- [Going further](#going-further)
-  - [Writing tests](#writing-tests)
-  - [Warnings as errors](#warnings-as-errors)
+- [Simple-p6-Setup](#simple-p6-setup)
+  - [Setting up](#setting-up)
+    - [Creating a repository](#creating-a-repository)
+    - [Downloading your repository](#downloading-your-repository)
+    - [Compiling](#compiling)
+    - [Clangd](#clangd)
+    - [Formatter](#formatter)
+    - [Linter](#linter)
+  - [Coding](#coding)
+    - [Renaming the project](#renaming-the-project)
+    - [Folder structure](#folder-structure)
+    - [p6](#p6)
+  - [Going further](#going-further)
+    - [Writing tests](#writing-tests)
+    - [Warnings as errors](#warnings-as-errors)
 
 ## Setting up
 
@@ -126,3 +127,8 @@ If you want to have warnings as errors in your local project too (typically in o
 - Search for `CMake: Edit CMake Cache (UI)`
 - Turn `WARNINGS_AS_ERRORS` ON and then save
   ![image](https://user-images.githubusercontent.com/45451201/217280969-48939e75-0bad-4a9f-bdf6-08e37649c4c6.png)
+
+
+link : 
+    subject : https://julesfouchy.github.io/Learn--Clean-Code-With-Cpp/sujet/
+    P6 docs : ttps://julesfouchy.github.io/p6-docs/
