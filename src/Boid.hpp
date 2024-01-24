@@ -6,20 +6,25 @@
 
 class Boid {
 private:
-    double posX;
-    double posY;
+    float posX;
+    float posY;
 
-    double velocityX;
-    double velocityY;
+    float velocityX;
+    float velocityY;
 
 public:
-    // Constructeur
-    Boid(double initPosX, double initPosY, double initVelocityX, double initVelocityY);
+    //Constructeur
+    Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY);
 
-    void   updatePosition(double deltaTime);
-    double getSpeed() const;
-    double getDirection() const;
-    void   printPosition() const;
+
+    float getPosX() const; 
+    float getPosY() const; 
+
+    void updatePosition(double deltaTime);
+    float getSpeed() const;
+    float getDirection() const;
+    void printPosition() const;
+    
 
     // Destructeur
     ~Boid();
