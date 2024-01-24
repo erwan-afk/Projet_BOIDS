@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
+
 
 class Boid {
 private:
@@ -12,21 +13,14 @@ private:
     double velocityY;
 
 public:
-    //Constructeur
+    // Constructeur
     Boid(double initPosX, double initPosY, double initVelocityX, double initVelocityY);
 
-
-    void updatePosition(double deltaTime);
+    void   updatePosition(double deltaTime);
     double getSpeed() const;
     double getDirection() const;
-    void printPosition() const;
-    
+    void   printPosition() const;
 
-
-    //Destructeur
-    ~Boid(); 
-
-    
-
-    
- }; 
+    // Destructeur
+    ~Boid();
+};

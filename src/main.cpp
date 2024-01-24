@@ -19,7 +19,8 @@ int main()
         // Clear the background with a fading effect
         ctx.use_stroke = false;
         ctx.fill       = {0.2f, 0.1f, 0.3f, 0.1f};
-        ctx.rectangle(p6::FullScreen{});
+        // ctx.rectangle(p6::FullScreen{});
+        ctx.rectangle(p6::Center{0.0, 0.0}, p6::Radii{0.3, 0.5}, p6::Rotation{0.0_turn});
         // Draw something
         ctx.fill = {1.f, 0.7f, 0.2f};
         ctx.circle(p6::Center{ctx.mouse()}, p6::Radius{0.1f});
@@ -28,4 +29,3 @@ int main()
     // Should be done last. It starts the infinite loop.
     ctx.start();
 }
-

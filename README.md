@@ -128,7 +128,6 @@ If you want to have warnings as errors in your local project too (typically in o
 - Turn `WARNINGS_AS_ERRORS` ON and then save
   ![image](https://user-images.githubusercontent.com/45451201/217280969-48939e75-0bad-4a9f-bdf6-08e37649c4c6.png)
 
-
-link : 
-    subject : https://julesfouchy.github.io/Learn--Clean-Code-With-Cpp/sujet/
-    P6 docs : ttps://julesfouchy.github.io/p6-docs/
+links :
+subject : https://julesfouchy.github.io/Learn--Clean-Code-With-Cpp/sujet/
+P6 docs : https://julesfouchy.github.io/p6-docs/
