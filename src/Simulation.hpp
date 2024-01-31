@@ -7,15 +7,17 @@ class Simulation {
 private:
     std::string name = "Projet_BOIDS";
     const int   window_width = 1280;
-    const int windows_height = 720;
+    const int window_height = 720;
     p6::Context ctx; 
     
+    void Render(); 
     
    
     
 public:
     Simulation();
-    ~Simulation();
+    void Run(); 
+    //~Simulation();
 };
 
 
