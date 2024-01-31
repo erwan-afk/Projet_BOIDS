@@ -2,7 +2,7 @@
 
 
 
-Boid::Boid(double initPosX, double initPosY, double initVelocityX, double initVelocityY)
+Boid::Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY)
     : posX(initPosX), posY(initPosY), velocityX(initVelocityX), velocityY(initVelocityY) {}
 
 void Boid::updatePosition(double deltaTime)
@@ -11,12 +11,21 @@ void Boid::updatePosition(double deltaTime)
     posX += velocityY * deltaTime;
 }
 
-double Boid::getSpeed() const
-{
-    return std::sqrt(velocityX * velocityX + velocityY * velocityX);
+float Boid::getPosX() const {
+    return posX; 
+}
+float Boid::getPosY() const {
+    return posY; 
 }
 
-double Boid::getDirection() const
+
+float Boid::getSpeed() const
+{
+    return std::sqrt(velocityX * velocityX + velocityY * velocityY);
+}
+
+
+float Boid::getDirection() const
 {
     return std::atan2(velocityY, velocityX);  
 }
