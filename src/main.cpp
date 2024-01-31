@@ -1,8 +1,9 @@
 #include <cstdlib>
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest/doctest.h"
-#include "p6/p6.h"
 #include "vector"
+
+#include "Simulation.hpp"
 
 int main()
 {

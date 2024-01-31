@@ -10,7 +10,7 @@ private:
 
     double velocityX;
     double velocityY;
-
+    
 public:
     //Constructeur
     Boid(double initPosX, double initPosY, double initVelocityX, double initVelocityY);
