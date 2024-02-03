@@ -1,8 +1,8 @@
 #include <cstdlib>
-#include "Boid.hpp"
 #include "Simulation.hpp"
 #include "p6/p6.h"
 #include "vector"
+
 
 int main()
 {

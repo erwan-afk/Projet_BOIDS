@@ -2,14 +2,19 @@
 
 #include <cmath>
 #include <iostream>
+#include "Boid.hpp"
+#include "p6/p6.h"
 
 class Boid {
 private:
     float posX;
     float posY;
 
-    double velocityX;
-    double velocityY;
+    float velocityX;
+    float velocityY;
+
+    float accelerationX;
+    float accelerationY;
 
 public:
     // Constructeur
@@ -22,6 +27,8 @@ public:
     float getSpeed() const;
     float getDirection() const;
     void  printPosition() const;
+
+    void show(p6::Context& ctx) const;
 
     // Destructeur
     ~Boid();
