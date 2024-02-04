@@ -13,22 +13,34 @@ private:
     float velocityX;
     float velocityY;
 
-    float accelerationX;
-    float accelerationY;
+    float accelerationX = 0.0;
+    float accelerationY = 0.0;
+
+    float maxSpeed = 0.0;
 
 public:
     // Constructeur
     Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY);
-
+    /*Getter*/
     float getPosX() const;
     float getPosY() const;
 
-    void  updatePosition(double deltaTime);
+    float getVelocityX() const;
+    float getVelocityY() const;
+
+    /*Update et affichage*/
+    void updatePosition(double deltaTime);
+    void edges();
+    void show(p6::Context& ctx) const;
+
+    /*Physique*/
+    std::pair<float, float> align(std::vector<Boid*> Boids);
+    void                    flock(std::vector<Boid*> Boids);
+
+    /*Fonction qui ne servent pas pour l'instant*/
     float getSpeed() const;
     float getDirection() const;
     void  printPosition() const;
-
-    void show(p6::Context& ctx) const;
 
     // Destructeur
     ~Boid();
