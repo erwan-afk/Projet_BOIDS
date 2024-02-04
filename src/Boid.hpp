@@ -30,12 +30,15 @@ public:
 
     /*Update et affichage*/
     void updatePosition(double deltaTime);
-    void edges();
+    void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
+    void showRadius(p6::Context& ctx) const;
 
     /*Physique*/
-    std::pair<float, float> align(std::vector<Boid*> Boids);
     void                    flock(std::vector<Boid*> Boids);
+    std::pair<float, float> align(std::vector<Boid*> Boids);
+    std::pair<float, float> cohesion(std::vector<Boid*> Boids);
+    std::pair<float, float> separation(std::vector<Boid*> Boids);
 
     /*Fonction qui ne servent pas pour l'instant*/
     float getSpeed() const;

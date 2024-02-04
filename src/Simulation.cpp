@@ -13,7 +13,7 @@ void Simulation::Run()
     // initalisation des boids
     for (int a = 0; a < 100; a++)
     {
-        flock.push_back(new Boid{p6::random::number(-1, 1), p6::random::number(-1, 1), p6::random::number(-0.005, 0.005), p6::random::number(-0.005, 0.005)});
+        flock.push_back(new Boid{p6::random::number(-ctx.aspect_ratio(), ctx.aspect_ratio()), p6::random::number(-1, 1), p6::random::number(-0.005, 0.005), p6::random::number(-0.005, 0.005)});
     }
 
     // lancer la boucle infini
@@ -32,6 +32,7 @@ void Simulation::Render()
 
         for (const auto& boid : flock)
         {
+            boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
             boid->flock(flock);
             boid->show(this->ctx);
