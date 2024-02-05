@@ -34,7 +34,6 @@ public:
     void updatePosition(double deltaTime);
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
-    
 
 
     /*Physique*/
@@ -46,10 +45,9 @@ public:
     
 
     /*Fonction qui ne servent pas pour l'instant*/
-    float getSpeed() const;
-    float getDirection() const;
-    void  printPosition() const;
-    //void showRadius(p6::Context& ctx) const;
+    float       getSpeed() const;
+    p6::Radians getDirection() const;
+    void        printPosition() const;
 
     // Destructeur
     ~Boid();
