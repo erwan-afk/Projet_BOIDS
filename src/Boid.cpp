@@ -54,14 +54,9 @@ void Boid::edges(p6::Context& ctx)
     }
 }
 
-float Boid::getSpeed() const
+p6::Radians Boid::getDirection() const
 {
-    return std::sqrt(velocityX * velocityX + velocityY * velocityY);
-}
-
-float Boid::getDirection() const
-{
-    return std::atan2(velocityY, velocityX);
+    return p6::Radians(std::atan2(velocityY, velocityX));
 }
 
 void Boid::printPosition() const
@@ -71,9 +66,11 @@ void Boid::printPosition() const
 
 void Boid::show(p6::Context& ctx) const
 {
-    ctx.fill       = {1.f, 0.7f, 0.2f};
-    ctx.use_stroke = false;
-    ctx.circle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f});
+    ctx.stroke        = {1.f, 0.7f, 0.2f};
+    ctx.stroke_weight = .005f;
+    ctx.use_stroke    = true;
+    ctx.use_fill      = false;
+    ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
 std::pair<float, float> Boid::align(std::vector<Boid*> Boids)
