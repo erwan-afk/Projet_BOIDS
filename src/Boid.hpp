@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <utility>
+#include <vector>
 #include "Boid.hpp"
 #include "p6/p6.h"
 
@@ -32,7 +34,8 @@ public:
     void updatePosition(double deltaTime);
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
-    void showRadius(p6::Context& ctx) const;
+    
+
 
     /*Physique*/
     void                    flock(std::vector<Boid*> Boids);
@@ -40,14 +43,26 @@ public:
     std::pair<float, float> cohesion(std::vector<Boid*> Boids);
     std::pair<float, float> separation(std::vector<Boid*> Boids);
 
+    
+
     /*Fonction qui ne servent pas pour l'instant*/
     float getSpeed() const;
     float getDirection() const;
     void  printPosition() const;
+    //void showRadius(p6::Context& ctx) const;
 
     // Destructeur
     ~Boid();
 };
+
+
+
+
+
+
+
+
+
 
 /*
 
