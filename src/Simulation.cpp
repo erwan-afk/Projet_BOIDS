@@ -12,9 +12,9 @@ Simulation::Simulation()
 void Simulation::Run()
 {
     // initalisation des boids
-    for (int a = 0; a < 100; a++)
+    for (unsigned int a = 0; a < this->nb_flock; a++)
     {
-        flock.push_back(new Boid{p6::random::number(-ctx.aspect_ratio(), ctx.aspect_ratio()), p6::random::number(-1, 1), p6::random::number(-0.005, 0.005), p6::random::number(-0.005, 0.005)});
+        flock.push_back(new Boid{p6::random::number(-ctx.aspect_ratio(), ctx.aspect_ratio()), p6::random::number(-1, 1), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor)});
     }
 
     // lancer la boucle infini
