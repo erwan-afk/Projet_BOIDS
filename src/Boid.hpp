@@ -18,6 +18,8 @@ private:
 
     float maxSpeed = 0.0;
 
+    float separationPerception; 
+
 public:
     // Constructeur
     Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY);
@@ -27,6 +29,9 @@ public:
 
     float getVelocityX() const;
     float getVelocityY() const;
+
+    float getSeparationPerception() const; 
+    void setSeparationPerception(float value); 
 
     /*Update et affichage*/
     void updatePosition(double deltaTime);

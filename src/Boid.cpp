@@ -21,6 +21,18 @@ float Boid::getVelocityY() const
     return this->velocityY;
 }
 
+
+float Boid::getSeparationPerception() const 
+{
+    return this->separationPerception;
+}
+void Boid::setSeparationPerception(float value)
+{
+    this->separationPerception = value; 
+}
+
+
+
 void Boid::updatePosition(double deltaTime)
 {
     posX += velocityX;
@@ -157,7 +169,6 @@ std::pair<float, float> Boid::cohesion(std::vector<Boid*> Boids)
 
 std::pair<float, float> Boid::separation(std::vector<Boid*> Boids)
 {
-    float perception = 0.1;
     float total      = 0;
 
     float avgVelocityX = 0;
@@ -171,7 +182,7 @@ std::pair<float, float> Boid::separation(std::vector<Boid*> Boids)
         // Calculer la distance euclidienne entre les deux boids
         float distance = std::sqrt(dx * dx + dy * dy);
 
-        if (other != this && distance < perception)
+        if (other != this && distance < getSeparationPerception())
         {
             // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
             float diffX = getPosX() - other->getPosX();

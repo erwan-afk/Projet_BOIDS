@@ -19,5 +19,6 @@ private:
 public:
     Simulation();
     void Run();
+    void setSeparationPerception(float value); 
     //~Simulation();
 };

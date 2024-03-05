@@ -8,6 +8,7 @@ Simulation::Simulation()
     // Initialisations supplémentaires si nécessaires
 }
 
+
 void Simulation::Run()
 {
     // initalisation des boids
@@ -21,15 +22,41 @@ void Simulation::Run()
     ctx.start();
 }
 
+
+void Simulation::setSeparationPerception(float value) {
+    for (const auto& boid : flock) {
+        boid->setSeparationPerception(value);
+    }
+}
+
+
+
+
 void Simulation::Render()
 {
     double deltaTime = 0.001;
+    glm::vec4 background_color = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
+    float separationPerception = 0.1; 
+    
+
+    
     // Declare your infinite update loop.
     ctx.update = [&]() {
-        // Clear the background with a fading effect
-        ctx.background({0.0f, 0.0f, 0.0f});
-        // Draw something
 
+        ImGui::Begin("Option");
+        ImGui::SliderFloat("Separation", &separationPerception, 0.05, 0.4);
+        ImGui::ColorPicker4("Background Color", (float*)&background_color);
+     
+
+        ImGui::End();
+
+        // Clear the background with a fading effect
+        ctx.background({background_color.x, background_color.y, background_color.z});
+        setSeparationPerception(separationPerception);
+
+   
+   
+        //draw
         for (const auto& boid : flock)
         {
             boid->edges(this->ctx);
