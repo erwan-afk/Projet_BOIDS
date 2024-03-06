@@ -21,17 +21,14 @@ float Boid::getVelocityY() const
     return this->velocityY;
 }
 
-
-float Boid::getSeparationPerception() const 
+float Boid::getSeparationPerception() const
 {
     return this->separationPerception;
 }
 void Boid::setSeparationPerception(float value)
 {
-    this->separationPerception = value; 
+    this->separationPerception = value;
 }
-
-
 
 void Boid::updatePosition(double deltaTime)
 {
@@ -114,6 +111,26 @@ void Boid::show(p6::Context& ctx) const
     ctx.use_stroke    = true;
     ctx.use_fill      = false;
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
+}
+
+void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
+{
+    // Position de la sphère dans l'espace view
+    glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), -2.0f);
+
+    // Calculez la matrice de modèle-vue en utilisant la translation
+    glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), spherePosition);
+    // MVMatrix = glm::rotate(MVMatrix, ctx.time(), {0.f, 1.f, 0.f}); // Translation * Rotation
+    MVMatrix = glm::scale(MVMatrix, glm::vec3{0.02f});
+
+    // Calculer la matrice NormalMatrix
+    glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+
+    glUniformMatrix4fv(uMVPMatrixLocation, 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
+    glUniformMatrix4fv(uMVMatrixLocation, 1, GL_FALSE, glm::value_ptr(MVMatrix));
+    glUniformMatrix4fv(uNormalMatrixLocation, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+
+    glDrawArrays(GL_TRIANGLES, 0, vertices_sphere.size());
 }
 
 std::pair<float, float> Boid::align(std::vector<Boid*> const& Boids)
@@ -200,7 +217,9 @@ std::pair<float, float> Boid::cohesion(std::vector<Boid*> const& Boids)
 
 std::pair<float, float> Boid::separation(std::vector<Boid*> const& Boids)
 {
-    float total      = 0;
+    float total = 0;
+
+    float perception = 0.1;
 
     float avgVelocityX = 0;
     float avgVelocityY = 0;
@@ -213,7 +232,7 @@ std::pair<float, float> Boid::separation(std::vector<Boid*> const& Boids)
         // Calculer la distance euclidienne entre les deux boids
         float distance = std::sqrt(dx * dx + dy * dy);
 
-        if (other != this && distance < getSeparationPerception())
+        if (other != this && distance < perception)
         {
             // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
             float diffX = getPosX() - other->getPosX();

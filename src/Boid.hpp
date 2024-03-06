@@ -1,10 +1,17 @@
 #pragma once
 
+#include <p6/p6.h>
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>
 #include "Boid.hpp"
+#include "glimac/sphere_vertices.hpp"
+#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
 #include "p6/p6.h"
 
 class Boid {
@@ -20,7 +27,7 @@ private:
 
     float maxSpeed = 0.0;
 
-    float separationPerception; 
+    float separationPerception;
 
 public:
     // Constructeur
@@ -32,13 +39,15 @@ public:
     float getVelocityX() const;
     float getVelocityY() const;
 
-    float getSeparationPerception() const; 
-    void setSeparationPerception(float value); 
+    float getSeparationPerception() const;
+    void  setSeparationPerception(float value);
 
     /*Update et affichage*/
     void updatePosition(double deltaTime);
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
+
+    void showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const;
 
     /*Physique*/
     void                    flock(std::vector<Boid*> const& Boids, p6::Context& ctx);

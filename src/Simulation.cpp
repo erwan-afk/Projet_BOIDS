@@ -1,13 +1,27 @@
 #include "Simulation.hpp"
 #include "Boid.hpp"
 
+/*Inclusion pour la 3D OpenGL*/
+#include <p6/p6.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "glimac/sphere_vertices.hpp"
+#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
+
+struct ShapeVertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoords;
+};
+
 // Définition du constructeur
 Simulation::Simulation()
     : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx()
 {
     // Initialisations supplémentaires si nécessaires
 }
-
 
 void Simulation::Run()
 {
@@ -20,50 +34,114 @@ void Simulation::Run()
 
     // lancer la boucle infini
     Render();
-    ctx.start();
 }
 
-
-void Simulation::setSeparationPerception(float value) {
-    for (const auto& boid : flock) {
+void Simulation::setSeparationPerception(float value)
+{
+    for (const auto& boid : flock)
+    {
         boid->setSeparationPerception(value);
     }
 }
 
-
-
-
 void Simulation::Render()
 {
-    double deltaTime = 0.001;
-    glm::vec4 background_color = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
-    float separationPerception = 0.1; 
-    
+    const p6::Shader shader = p6::load_shader(
+        "shaders/3D.vs.glsl",
+        "shaders/normals.fs.glsl"
+    );
 
-    
+    // Création d'un seul VBO :
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    // À partir de ce point, la variable vbo contient l'identifiant d'un VBO
+
+    // Binding d'un VBO sur la cible GL_ARRAY_BUFFER:
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // On peut à présent modifier le VBO en passant par la cible GL_ARRAY_BUFFER
+
+    const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::sphere_vertices(1.f, 32, 16);
+
+    glBufferData(GL_ARRAY_BUFFER, vertices_sphere.size() * sizeof(ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
+
+    // DeBinding d'un VBO sur la cible GL_ARRAY_BUFFER:
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    static constexpr GLuint vertex_attr_position = 0;
+    glEnableVertexAttribArray(vertex_attr_position);
+
+    glVertexAttribPointer(vertex_attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, position)));
+
+    static constexpr GLuint vertex_attr_normal = 1;
+    glEnableVertexAttribArray(vertex_attr_normal);
+
+    glVertexAttribPointer(vertex_attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, normal)));
+
+    static constexpr GLuint vertex_attr_texCoords = 2;
+    glEnableVertexAttribArray(vertex_attr_texCoords);
+
+    glVertexAttribPointer(vertex_attr_texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, texCoords)));
+
+    // Unbind the VAO
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    GLuint uMVPMatrixLocation    = glGetUniformLocation(shader.id(), "uMVPMatrix");
+    GLuint uMVMatrixLocation     = glGetUniformLocation(shader.id(), "uMVMatrix");
+    GLuint uNormalMatrixLocation = glGetUniformLocation(shader.id(), "uNormalMatrix");
+
+    glEnable(GL_DEPTH_TEST);
+
+    double    deltaTime            = 0.001;
+    glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
+    float     separationPerception = 0.1;
+
     // Declare your infinite update loop.
     ctx.update = [&]() {
-
         ImGui::Begin("Option");
         ImGui::SliderFloat("Separation", &separationPerception, 0.05, 0.4);
         ImGui::ColorPicker4("Background Color", (float*)&background_color);
-     
 
         ImGui::End();
 
-        // Clear the background with a fading effect
-        ctx.background({background_color.x, background_color.y, background_color.z});
-        setSeparationPerception(separationPerception);
+        // Clear the screen
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   
-   
-        //draw
+        // Bind the VAO before rendering
+        glBindVertexArray(vao);
+
+        shader.use();
+
+        // Calculez la matrice de projection
+        glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
+
+        /* -------------------  */
+
+        // Clear the background with a fading effect
+        // ctx.background({background_color.x, background_color.y, background_color.z});
+        // setSeparationPerception(separationPerception);
+
+        // draw
+
         for (const auto& boid : flock)
         {
             // boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
-            boid->show(this->ctx);
+            // boid->show(ctx);
+            boid->showOpenGL(this->ctx, uMVPMatrixLocation, uMVMatrixLocation, uNormalMatrixLocation, ProjMatrix, vertices_sphere);
         }
+        glBindVertexArray(0);
     };
+
+    ctx.start();
+
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
 }
