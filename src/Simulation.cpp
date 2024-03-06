@@ -14,6 +14,7 @@ void Simulation::Run()
     // initalisation des boids
     for (unsigned int a = 0; a < this->nb_flock; a++)
     {
+        // unique_ptr plutôt que new (ou alors pas de ptr du tout)
         flock.push_back(new Boid{p6::random::number(-ctx.aspect_ratio(), ctx.aspect_ratio()), p6::random::number(-1, 1), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor)});
     }
 
@@ -59,9 +60,9 @@ void Simulation::Render()
         //draw
         for (const auto& boid : flock)
         {
-            boid->edges(this->ctx);
+            // boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
-            boid->flock(flock);
+            boid->flock(flock, this->ctx);
             boid->show(this->ctx);
         }
     };

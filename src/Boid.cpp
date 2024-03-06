@@ -41,8 +41,8 @@ void Boid::updatePosition(double deltaTime)
     velocityX += accelerationX;
     velocityY += accelerationY;
 
-    accelerationX *= 0;
-    accelerationY *= 0;
+    accelerationX = 0;
+    accelerationY = 0;
 }
 
 void Boid::edges(p6::Context& ctx)
@@ -71,7 +71,7 @@ p6::Radians Boid::getDirection() const
     return p6::Radians(std::atan2(velocityY, velocityX));
 }
 
-void Boid::flock(std::vector<Boid*> Boids)
+void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 {
     const float alignmentFactor = 0.005; // Ajustez cette valeur selon vos besoins
     const float minSpeed        = 0.002; // Ajustez cette valeur selon vos besoins
@@ -81,14 +81,17 @@ void Boid::flock(std::vector<Boid*> Boids)
 
     const float separationsFactor = 0.00005; // Ajustez cette valeur selon vos besoins
 
-    std::pair<float, float> alignment   = align(Boids);
-    std::pair<float, float> cohesions   = cohesion(Boids);
-    std::pair<float, float> separations = separation(Boids);
+    const float separationsEdgesFactor = 0.00001; // Ajustez cette valeur selon vos besoins
+
+    std::pair<float, float> alignment      = align(Boids);
+    std::pair<float, float> cohesions      = cohesion(Boids);
+    std::pair<float, float> separations    = separation(Boids);
+    std::pair<float, float> separationEdge = separationEdges(Boids, ctx);
 
     // Appliquer l'alignement comme une fraction de la moyenne des vélocités des voisins
 
-    accelerationX = (alignment.first * alignmentFactor + cohesions.first * cohesionFactor + separations.first * separationsFactor);
-    accelerationY = (alignment.second * alignmentFactor + cohesions.second * cohesionFactor + separations.second * separationsFactor);
+    accelerationX = (alignment.first * alignmentFactor + cohesions.first * cohesionFactor + separations.first * separationsFactor + separationEdge.first * separationsEdgesFactor);
+    accelerationY = (alignment.second * alignmentFactor + cohesions.second * cohesionFactor + separations.second * separationsFactor + separationEdge.second * separationsEdgesFactor);
 
     /*
     accelerationX = separations.first * separationsFactor;
@@ -113,7 +116,7 @@ void Boid::show(p6::Context& ctx) const
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
-std::pair<float, float> Boid::align(std::vector<Boid*> Boids)
+std::pair<float, float> Boid::align(std::vector<Boid*> const& Boids)
 {
     float perception = 0.4;
     float total      = 0;
@@ -152,7 +155,7 @@ std::pair<float, float> Boid::align(std::vector<Boid*> Boids)
     return std::make_pair(avgVelocityX, avgVelocityY);
 }
 
-std::pair<float, float> Boid::cohesion(std::vector<Boid*> Boids)
+std::pair<float, float> Boid::cohesion(std::vector<Boid*> const& Boids)
 {
     float perception = 0.2;
     float total      = 0;
@@ -195,7 +198,7 @@ std::pair<float, float> Boid::cohesion(std::vector<Boid*> Boids)
     return std::make_pair(avgVelocityX, avgVelocityY);
 }
 
-std::pair<float, float> Boid::separation(std::vector<Boid*> Boids)
+std::pair<float, float> Boid::separation(std::vector<Boid*> const& Boids)
 {
     float total      = 0;
 
@@ -236,6 +239,81 @@ std::pair<float, float> Boid::separation(std::vector<Boid*> Boids)
         avgVelocityY -= velocityY;
     }
 
+    return std::make_pair(avgVelocityX, avgVelocityY);
+}
+
+std::pair<float, float> Boid::separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx)
+{
+    float perception = 0.1;
+    float total      = 0;
+
+    float avgVelocityX = 0;
+    float avgVelocityY = 0;
+
+    /*
+
+    for (const auto& other : Boids)
+    {
+        if (other != this)
+        {
+            float dx = other->getPosX() - getPosX();
+            float dy = other->getPosY() - getPosY();
+
+            // Calculer la distance euclidienne entre les deux boids
+            float distance = std::sqrt(dx * dx + dy * dy);
+
+            if (distance < perception)
+            {
+                // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
+                avgVelocityX += dx / distance;
+                avgVelocityY += dy / distance;
+                total++;
+            }
+        }
+    }
+
+    */
+
+    // Éviter les bords de l'écran
+    float offsetScreen = 0.3;
+    float sizeScreenX  = ctx.aspect_ratio() - offsetScreen;
+    float sizeScreenY  = 1.0 - offsetScreen;
+
+    if (getPosX() < -sizeScreenX - perception)
+    {
+        avgVelocityX += (perception - getPosX()) / perception;
+        total++;
+    }
+    else if (getPosX() > sizeScreenX - perception)
+    {
+        avgVelocityX += (sizeScreenX - perception - getPosX()) / perception;
+        total++;
+    }
+    else if (getPosX() < -sizeScreenX - perception)
+    {
+        avgVelocityX -= (sizeScreenX - perception - getPosX()) / perception;
+        total++;
+    }
+
+    if (getPosY() < -sizeScreenY - perception)
+    {
+        avgVelocityY += (perception - getPosY()) / perception;
+        total++;
+    }
+    else if (getPosY() > sizeScreenY - perception)
+    {
+        avgVelocityY += (sizeScreenY - perception - getPosY()) / perception;
+        total++;
+    }
+
+    // Moyenner la vélocité si des voisins sont trouvés
+    if (total > 0)
+    {
+        avgVelocityX /= total;
+        avgVelocityY /= total;
+    }
+
+    // Retourner la moyenne des composantes de vélocité
     return std::make_pair(avgVelocityX, avgVelocityY);
 }
 

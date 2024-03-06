@@ -40,14 +40,12 @@ public:
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
 
-
     /*Physique*/
-    void                    flock(std::vector<Boid*> Boids);
-    std::pair<float, float> align(std::vector<Boid*> Boids);
-    std::pair<float, float> cohesion(std::vector<Boid*> Boids);
-    std::pair<float, float> separation(std::vector<Boid*> Boids);
-
-    
+    void                    flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
+    std::pair<float, float> align(std::vector<Boid*> const& Boids);
+    std::pair<float, float> cohesion(std::vector<Boid*> const& Boids);
+    std::pair<float, float> separation(std::vector<Boid*> const& Boids);
+    std::pair<float, float> separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx);
 
     /*Fonction qui ne servent pas pour l'instant*/
     float       getSpeed() const;
@@ -57,15 +55,6 @@ public:
     // Destructeur
     ~Boid();
 };
-
-
-
-
-
-
-
-
-
 
 /*
 
