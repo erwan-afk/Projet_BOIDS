@@ -1,7 +1,7 @@
 #include "Boid.hpp"
 
-Boid::Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY)
-    : posX(initPosX), posY(initPosY), velocityX(initVelocityX), velocityY(initVelocityY) {}
+Boid::Boid(float initPosX, float initPosY, float initPosZ, float initVelocityX, float initVelocityY, float initVelocityZ)
+    : posX(initPosX), posY(initPosY), posZ(initPosZ), velocityX(initVelocityX), velocityY(initVelocityY), velocityZ(initVelocityZ) {}
 
 float Boid::getPosX() const
 {
@@ -11,6 +11,10 @@ float Boid::getPosY() const
 {
     return this->posY;
 }
+float Boid::getPosZ() const
+{
+    return this->posZ;
+}
 
 float Boid::getVelocityX() const
 {
@@ -19,6 +23,10 @@ float Boid::getVelocityX() const
 float Boid::getVelocityY() const
 {
     return this->velocityY;
+}
+float Boid::getVelocityZ() const
+{
+    return this->velocityZ;
 }
 
 float Boid::getSeparationPerception() const
@@ -34,12 +42,15 @@ void Boid::updatePosition(double deltaTime)
 {
     posX += velocityX;
     posY += velocityY;
+    posZ += velocityZ;
 
     velocityX += accelerationX;
     velocityY += accelerationY;
+    velocityZ += accelerationZ;
 
     accelerationX = 0;
     accelerationY = 0;
+    accelerationZ = 0;
 }
 
 void Boid::edges(p6::Context& ctx)
@@ -63,9 +74,20 @@ void Boid::edges(p6::Context& ctx)
     }
 }
 
-p6::Radians Boid::getDirection() const
+glm::vec3 Boid::getDirection() const
 {
-    return p6::Radians(std::atan2(velocityY, velocityX));
+    glm::vec3 velocity(getVelocityX(), getVelocityY(), getVelocityZ());
+    float     magnitude = glm::length(velocity);
+
+    if (magnitude != 0.0f)
+    {
+        return velocity / magnitude;
+    }
+    else
+    {
+        // Gérer le cas où la magnitude est nulle
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
 }
 
 void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
@@ -74,33 +96,34 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
     const float minSpeed        = 0.002; // Ajustez cette valeur selon vos besoins
 
     /* cohesion factor */
-    const float cohesionFactor = 0.0002; // Ajustez cette valeur selon vos besoins
+    const float cohesionFactor = 0.00005; // Ajustez cette valeur selon vos besoins
 
-    const float separationsFactor = 0.00005; // Ajustez cette valeur selon vos besoins
+    const float separationsFactor = 0.0001; // Ajustez cette valeur selon vos besoins
 
     const float separationsEdgesFactor = 0.00001; // Ajustez cette valeur selon vos besoins
 
-    std::pair<float, float> alignment      = align(Boids);
-    std::pair<float, float> cohesions      = cohesion(Boids);
-    std::pair<float, float> separations    = separation(Boids);
-    std::pair<float, float> separationEdge = separationEdges(Boids, ctx);
+    glm::vec3 alignment      = align(Boids);
+    glm::vec3 cohesions      = cohesion(Boids);
+    glm::vec3 separations    = separation(Boids);
+    glm::vec3 separationEdge = separationEdges(Boids, ctx);
 
     // Appliquer l'alignement comme une fraction de la moyenne des vélocités des voisins
 
-    accelerationX = (alignment.first * alignmentFactor + cohesions.first * cohesionFactor + separations.first * separationsFactor + separationEdge.first * separationsEdgesFactor);
-    accelerationY = (alignment.second * alignmentFactor + cohesions.second * cohesionFactor + separations.second * separationsFactor + separationEdge.second * separationsEdgesFactor);
-
+    accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor + separationEdge.x * separationsEdgesFactor);
+    accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor + separationEdge.y * separationsEdgesFactor);
+    accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor + separationEdge.z * separationsEdgesFactor);
     /*
     accelerationX = separations.first * separationsFactor;
     accelerationY = separations.second * separationsFactor;
     */
     // Limiter la vitesse à minSpeed
-    float speed = std::sqrt(velocityX * velocityX + velocityY * velocityY);
+    float speed = std::sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ);
     if (speed < minSpeed)
     {
         float speedScale = minSpeed / speed;
         velocityX *= speedScale;
         velocityY *= speedScale;
+        velocityZ *= speedScale;
     }
 }
 
@@ -116,12 +139,17 @@ void Boid::show(p6::Context& ctx) const
 void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
 {
     // Position de la sphère dans l'espace view
-    glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), -2.0f);
+    glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
 
-    // Calculez la matrice de modèle-vue en utilisant la translation
-    glm::mat4 MVMatrix = glm::translate(glm::mat4(1.0f), spherePosition);
-    // MVMatrix = glm::rotate(MVMatrix, ctx.time(), {0.f, 1.f, 0.f}); // Translation * Rotation
-    MVMatrix = glm::scale(MVMatrix, glm::vec3{0.02f});
+    // Définir la position de la caméra
+    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
+
+    // Calculer la matrice de vue
+    glm::mat4 ViewMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    // Appliquer la matrice de vue à la matrice modèle-vue (MVMatrix)
+    glm::mat4 MVMatrix = glm::translate(ViewMatrix, spherePosition);
+    MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.02f));
 
     // Calculer la matrice NormalMatrix
     glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
@@ -133,27 +161,24 @@ void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMat
     glDrawArrays(GL_TRIANGLES, 0, vertices_sphere.size());
 }
 
-std::pair<float, float> Boid::align(std::vector<Boid*> const& Boids)
+glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.4;
+    float perception = 0.4f;
     float total      = 0;
 
-    float avgVelocityX = 0;
-    float avgVelocityY = 0;
+    glm::vec3 avgVelocity(0.0f);
 
     for (const auto& other : Boids)
     {
-        float dx = other->getPosX() - getPosX();
-        float dy = other->getPosY() - getPosY();
+        glm::vec3 delta = glm::vec3(other->getPosX() - getPosX(), other->getPosY() - getPosY(), other->getPosZ() - getPosZ());
 
         // Calculer la distance euclidienne entre les deux boids
-        float distance = std::sqrt(dx * dx + dy * dy);
+        float distance = glm::length(delta);
 
         if (other != this && distance < perception)
         {
-            // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
-            avgVelocityX += other->getVelocityX();
-            avgVelocityY += other->getVelocityY();
+            // Ajouter les composantes de la vélocité à avgVelocity
+            avgVelocity += glm::vec3(other->getVelocityX(), other->getVelocityY(), other->getVelocityZ());
             total++;
         }
     }
@@ -161,38 +186,72 @@ std::pair<float, float> Boid::align(std::vector<Boid*> const& Boids)
     if (total > 0)
     {
         // Calculer la moyenne des composantes de vélocité
-        avgVelocityX /= total;
-        avgVelocityY /= total;
+        avgVelocity /= static_cast<float>(total);
 
         // Soustraire la vélocité actuelle du boid
-        avgVelocityX -= velocityX;
-        avgVelocityY -= velocityY;
+        avgVelocity -= glm::vec3(velocityX, velocityY, velocityZ);
     }
 
-    return std::make_pair(avgVelocityX, avgVelocityY);
+    return avgVelocity;
 }
 
-std::pair<float, float> Boid::cohesion(std::vector<Boid*> const& Boids)
+glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.2;
+    float perception = 0.2f;
     float total      = 0;
 
-    float avgVelocityX = 0;
-    float avgVelocityY = 0;
+    glm::vec3 avgPosition(0.0f);
+    glm::vec3 avgVelocity(0.0f);
 
     for (const auto& other : Boids)
     {
-        float dx = other->getPosX() - getPosX();
-        float dy = other->getPosY() - getPosY();
+        glm::vec3 delta = glm::vec3(other->getPosX() - getPosX(), other->getPosY() - getPosY(), other->getPosZ() - getPosZ());
 
         // Calculer la distance euclidienne entre les deux boids
-        float distance = std::sqrt(dx * dx + dy * dy);
+        float distance = glm::length(delta);
 
         if (other != this && distance < perception)
         {
-            // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
-            avgVelocityX += other->getPosX();
-            avgVelocityY += other->getPosY();
+            // Ajouter les composantes de la position et de la vélocité à avgPosition et avgVelocity
+            avgPosition += glm::vec3(other->getPosX(), other->getPosY(), other->getPosZ());
+            avgVelocity += glm::vec3(other->getVelocityX(), other->getVelocityY(), other->getVelocityZ());
+            total++;
+        }
+    }
+
+    if (total > 0)
+    {
+        // Calculer la moyenne des composantes de position et de vélocité
+        avgPosition /= static_cast<float>(total);
+        avgVelocity /= static_cast<float>(total);
+
+        // Soustraire la position et la vélocité actuelles du boid
+        avgPosition -= glm::vec3(posX, posY, posZ);
+        avgVelocity -= glm::vec3(velocityX, velocityY, velocityZ);
+    }
+
+    return avgPosition + avgVelocity;
+}
+
+glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
+{
+    float perception = 0.1f;
+    float total      = 0;
+
+    glm::vec3 avgVelocity(0.0f);
+
+    for (const auto& other : Boids)
+    {
+        glm::vec3 delta = glm::vec3(other->getPosX() - getPosX(), other->getPosY() - getPosY(), other->getPosZ() - getPosZ());
+
+        // Calculer la distance euclidienne entre les deux boids
+        float distance = glm::length(delta);
+
+        if (other != this && distance < perception)
+        {
+            // Ajouter les composantes normalisées de la vélocité à avgVelocity
+            glm::vec3 normalizedDelta = glm::normalize(delta);
+            avgVelocity += normalizedDelta;
             total++;
         }
     }
@@ -200,145 +259,74 @@ std::pair<float, float> Boid::cohesion(std::vector<Boid*> const& Boids)
     if (total > 0)
     {
         // Calculer la moyenne des composantes de vélocité
-        avgVelocityX /= total;
-        avgVelocityY /= total;
-
-        // Soustraire la position actuelle du boid
-        avgVelocityX -= posX;
-        avgVelocityY -= posY;
+        avgVelocity /= static_cast<float>(total);
 
         // Soustraire la vélocité actuelle du boid
-        avgVelocityX -= velocityX;
-        avgVelocityY -= velocityY;
+        avgVelocity -= glm::vec3(velocityX, velocityY, velocityZ);
     }
 
-    return std::make_pair(avgVelocityX, avgVelocityY);
+    return avgVelocity;
 }
 
-std::pair<float, float> Boid::separation(std::vector<Boid*> const& Boids)
+glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ctx)
 {
-    float total = 0;
-
-    float perception = 0.1;
-
-    float avgVelocityX = 0;
-    float avgVelocityY = 0;
-
-    for (const auto& other : Boids)
-    {
-        float dx = other->getPosX() - getPosX();
-        float dy = other->getPosY() - getPosY();
-
-        // Calculer la distance euclidienne entre les deux boids
-        float distance = std::sqrt(dx * dx + dy * dy);
-
-        if (other != this && distance < perception)
-        {
-            // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
-            float diffX = getPosX() - other->getPosX();
-            float diffY = getPosY() - other->getPosY();
-
-            diffX /= distance;
-            diffY /= distance;
-
-            avgVelocityX += diffX;
-            avgVelocityY += diffY;
-            total++;
-        }
-    }
-
-    if (total > 0)
-    {
-        // Calculer la moyenne des composantes de vélocité
-        avgVelocityX /= total;
-        avgVelocityY /= total;
-
-        // Soustraire la vélocité actuelle du boid
-        avgVelocityX -= velocityX;
-        avgVelocityY -= velocityY;
-    }
-
-    return std::make_pair(avgVelocityX, avgVelocityY);
-}
-
-std::pair<float, float> Boid::separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx)
-{
-    float perception = 0.1;
+    float perception = 0.1f;
     float total      = 0;
 
-    float avgVelocityX = 0;
-    float avgVelocityY = 0;
-
-    /*
-
-    for (const auto& other : Boids)
-    {
-        if (other != this)
-        {
-            float dx = other->getPosX() - getPosX();
-            float dy = other->getPosY() - getPosY();
-
-            // Calculer la distance euclidienne entre les deux boids
-            float distance = std::sqrt(dx * dx + dy * dy);
-
-            if (distance < perception)
-            {
-                // Ajouter les composantes de la vélocité à avgVelocityX et avgVelocityY
-                avgVelocityX += dx / distance;
-                avgVelocityY += dy / distance;
-                total++;
-            }
-        }
-    }
-
-    */
+    glm::vec3 avgVelocity(0.0f);
 
     // Éviter les bords de l'écran
-    float offsetScreen = 0.3;
-    float sizeScreenX  = ctx.aspect_ratio() - offsetScreen;
-    float sizeScreenY  = 1.0 - offsetScreen;
+    float offsetScreen = 0.3f;
+    float sizeScreenX  = 1.0f - offsetScreen;
+    float sizeScreenY  = 1.0f - offsetScreen;
+    float sizeScreenZ  = 1.0f - offsetScreen; // Assumption: Z dimension is within [0, 1]
 
     if (getPosX() < -sizeScreenX - perception)
     {
-        avgVelocityX += (perception - getPosX()) / perception;
+        avgVelocity.x += (perception - getPosX()) / perception;
         total++;
     }
     else if (getPosX() > sizeScreenX - perception)
     {
-        avgVelocityX += (sizeScreenX - perception - getPosX()) / perception;
-        total++;
-    }
-    else if (getPosX() < -sizeScreenX - perception)
-    {
-        avgVelocityX -= (sizeScreenX - perception - getPosX()) / perception;
+        avgVelocity.x += (sizeScreenX - perception - getPosX()) / perception;
         total++;
     }
 
     if (getPosY() < -sizeScreenY - perception)
     {
-        avgVelocityY += (perception - getPosY()) / perception;
+        avgVelocity.y += (perception - getPosY()) / perception;
         total++;
     }
     else if (getPosY() > sizeScreenY - perception)
     {
-        avgVelocityY += (sizeScreenY - perception - getPosY()) / perception;
+        avgVelocity.y += (sizeScreenY - perception - getPosY()) / perception;
+        total++;
+    }
+
+    if (getPosZ() < -sizeScreenZ - perception)
+    {
+        avgVelocity.z += (perception - getPosZ()) / perception;
+        total++;
+    }
+    else if (getPosZ() > sizeScreenZ - perception)
+    {
+        avgVelocity.z += (sizeScreenZ - perception - getPosZ()) / perception;
         total++;
     }
 
     // Moyenner la vélocité si des voisins sont trouvés
     if (total > 0)
     {
-        avgVelocityX /= total;
-        avgVelocityY /= total;
+        avgVelocity /= static_cast<float>(total);
     }
 
     // Retourner la moyenne des composantes de vélocité
-    return std::make_pair(avgVelocityX, avgVelocityY);
+    return avgVelocity;
 }
 
 float Boid::getSpeed() const
 {
-    return std::sqrt(velocityX * velocityX + velocityY * velocityY);
+    return std::sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ);
 }
 
 void Boid::printPosition() const

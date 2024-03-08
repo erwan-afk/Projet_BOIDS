@@ -1,11 +1,13 @@
 #include "Simulation.hpp"
 #include "Boid.hpp"
+#include "TrackballCamera.hpp"
 
 /*Inclusion pour la 3D OpenGL*/
 #include <p6/p6.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "glimac/cone_vertices.hpp"
 #include "glimac/sphere_vertices.hpp"
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
@@ -29,7 +31,7 @@ void Simulation::Run()
     for (unsigned int a = 0; a < this->nb_flock; a++)
     {
         // unique_ptr plutôt que new (ou alors pas de ptr du tout)
-        flock.push_back(new Boid{p6::random::number(-ctx.aspect_ratio(), ctx.aspect_ratio()), p6::random::number(-1, 1), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor)});
+        flock.push_back(new Boid{p6::random::number(-1, 1), p6::random::number(-1, 1), p6::random::number(-1, 1), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor)});
     }
 
     // lancer la boucle infini
@@ -60,7 +62,7 @@ void Simulation::Render()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     // On peut à présent modifier le VBO en passant par la cible GL_ARRAY_BUFFER
 
-    const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::sphere_vertices(1.f, 32, 16);
+    const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
 
     glBufferData(GL_ARRAY_BUFFER, vertices_sphere.size() * sizeof(ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
 
@@ -102,6 +104,8 @@ void Simulation::Render()
     glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
     float     separationPerception = 0.1;
 
+    TrackballCamera camera;
+
     // Declare your infinite update loop.
     ctx.update = [&]() {
         ImGui::Begin("Option");
@@ -120,6 +124,8 @@ void Simulation::Render()
 
         // Calculez la matrice de projection
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
+        // Calcul de la matrice de vue
+        glm::mat4 viewMatrix = camera.getViewMatrix();
 
         /* -------------------  */
 

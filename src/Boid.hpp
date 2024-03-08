@@ -18,12 +18,15 @@ class Boid {
 private:
     float posX;
     float posY;
+    float posZ;
 
     float velocityX;
     float velocityY;
+    float velocityZ;
 
     float accelerationX = 0.0;
     float accelerationY = 0.0;
+    float accelerationZ = 0.0;
 
     float maxSpeed = 0.0;
 
@@ -31,13 +34,15 @@ private:
 
 public:
     // Constructeur
-    Boid(float initPosX, float initPosY, float initVelocityX, float initVelocityY);
+    Boid(float initPosX, float initPosY, float initPosZ, float initVelocityX, float initVelocityY, float initVelocityZ);
     /*Getter*/
     float getPosX() const;
     float getPosY() const;
+    float getPosZ() const;
 
     float getVelocityX() const;
     float getVelocityY() const;
+    float getVelocityZ() const;
 
     float getSeparationPerception() const;
     void  setSeparationPerception(float value);
@@ -50,16 +55,16 @@ public:
     void showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const;
 
     /*Physique*/
-    void                    flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
-    std::pair<float, float> align(std::vector<Boid*> const& Boids);
-    std::pair<float, float> cohesion(std::vector<Boid*> const& Boids);
-    std::pair<float, float> separation(std::vector<Boid*> const& Boids);
-    std::pair<float, float> separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx);
+    void      flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
+    glm::vec3 align(std::vector<Boid*> const& Boids);
+    glm::vec3 cohesion(std::vector<Boid*> const& Boids);
+    glm::vec3 separation(std::vector<Boid*> const& Boids);
+    glm::vec3 separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx);
 
     /*Fonction qui ne servent pas pour l'instant*/
-    float       getSpeed() const;
-    p6::Radians getDirection() const;
-    void        printPosition() const;
+    float     getSpeed() const;
+    glm::vec3 getDirection() const;
+    void      printPosition() const;
 
     // Destructeur
     ~Boid();
