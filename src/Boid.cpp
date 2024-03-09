@@ -29,14 +29,12 @@ float Boid::getVelocityZ() const
     return this->velocityZ;
 }
 
-float Boid::getSeparationPerception() const
-{
-    return this->separationPerception;
+
+
+void Boid::setImguiFactor(float value){
+    this->imguiFactor = value; 
 }
-void Boid::setSeparationPerception(float value)
-{
-    this->separationPerception = value;
-}
+
 
 void Boid::updatePosition(double deltaTime)
 {
@@ -97,6 +95,8 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 
     /* cohesion factor */
     const float cohesionFactor = 0.00005; // Ajustez cette valeur selon vos besoins
+    //* this->imguiFactor
+    
 
     const float separationsFactor = 0.0001; // Ajustez cette valeur selon vos besoins
 
@@ -109,9 +109,9 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 
     // Appliquer l'alignement comme une fraction de la moyenne des vélocités des voisins
 
-    accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor + separationEdge.x * separationsEdgesFactor);
-    accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor + separationEdge.y * separationsEdgesFactor);
-    accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor + separationEdge.z * separationsEdgesFactor);
+    accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor * this->imguiFactor + separationEdge.x * separationsEdgesFactor);
+    accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor * this->imguiFactor + separationEdge.y * separationsEdgesFactor);
+    accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor * this->imguiFactor + separationEdge.z * separationsEdgesFactor);
     /*
     accelerationX = separations.first * separationsFactor;
     accelerationY = separations.second * separationsFactor;

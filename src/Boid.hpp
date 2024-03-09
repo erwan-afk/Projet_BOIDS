@@ -30,7 +30,8 @@ private:
 
     float maxSpeed = 0.0;
 
-    float separationPerception;
+    float  imguiFactor=1.0;
+
 
 public:
     // Constructeur
@@ -44,8 +45,8 @@ public:
     float getVelocityY() const;
     float getVelocityZ() const;
 
-    float getSeparationPerception() const;
-    void  setSeparationPerception(float value);
+    void setImguiFactor(float value); 
+
 
     /*Update et affichage*/
     void updatePosition(double deltaTime);

@@ -25,6 +25,13 @@ Simulation::Simulation()
     // Initialisations supplémentaires si nécessaires
 }
 
+void Simulation::setImguiFactor(float value) {
+      for (Boid* boid : flock) {
+        boid->setImguiFactor(value);
+    }
+}
+
+
 void Simulation::Run()
 {
     // initalisation des boids
@@ -38,13 +45,6 @@ void Simulation::Run()
     Render();
 }
 
-void Simulation::setSeparationPerception(float value)
-{
-    for (const auto& boid : flock)
-    {
-        boid->setSeparationPerception(value);
-    }
-}
 
 void Simulation::Render()
 {
@@ -101,20 +101,24 @@ void Simulation::Render()
     glEnable(GL_DEPTH_TEST);
 
     double    deltaTime            = 0.001;
+    //ImGui default values
     glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
-    float     separationPerception = 0.1;
+    float     separationPerception = 1.0;
 
     TrackballCamera camera;
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
         ImGui::Begin("Option");
-        ImGui::SliderFloat("Separation", &separationPerception, 0.05, 0.4);
+        ImGui::SliderFloat("Separation", &separationPerception, 1.0, 10.0);
         ImGui::ColorPicker4("Background Color", (float*)&background_color);
-
         ImGui::End();
 
+        //set ImGui Options
+        Simulation::setImguiFactor(separationPerception);
+
         // Clear the screen
+        glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Bind the VAO before rendering
@@ -131,7 +135,6 @@ void Simulation::Render()
 
         // Clear the background with a fading effect
         // ctx.background({background_color.x, background_color.y, background_color.z});
-        // setSeparationPerception(separationPerception);
 
         // draw
 

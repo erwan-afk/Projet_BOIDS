@@ -18,9 +18,12 @@ private:
 
     void Render();
 
+
+
 public:
     Simulation();
+    void setImguiFactor(float value);
     void Run();
-    void setSeparationPerception(float value); 
+
     //~Simulation();
 };
