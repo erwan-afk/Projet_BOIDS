@@ -131,12 +131,6 @@ void Simulation::Render()
         // Calcul de la matrice de vue
         glm::mat4 viewMatrix = camera.getViewMatrix();
 
-        /* -------------------  */
-
-        // Clear the background with a fading effect
-        // ctx.background({background_color.x, background_color.y, background_color.z});
-
-        // draw
 
         for (const auto& boid : flock)
         {
