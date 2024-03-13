@@ -12,7 +12,7 @@ private:
 public:
     // Constructeur
     TrackballCamera()
-        : m_Distance(5.0f), m_AngleX(0.0f), m_AngleY(0.0f) {}
+        : m_Distance(2.0f), m_AngleX(0.0f), m_AngleY(0.0f) {}
 
     // Autres membres et méthodes de la classe peuvent être ajoutés ici selon les besoins
     // Méthodes pour déplacer et tourner la caméra
@@ -48,7 +48,7 @@ public:
         glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), angleY_rad, glm::vec3(0.0f, 1.0f, 0.0f));
 
         // La matrice de vue est obtenue par la multiplication des trois matrices
-        glm::mat4 viewMatrix = rotationY * rotationX * translation;
+        glm::mat4 viewMatrix = translation * rotationX * rotationY;
 
         return viewMatrix;
     }

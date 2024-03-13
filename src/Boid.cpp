@@ -29,12 +29,10 @@ float Boid::getVelocityZ() const
     return this->velocityZ;
 }
 
-
-
-void Boid::setImguiFactor(float value){
-    this->imguiFactor = value; 
+void Boid::setImguiFactor(float value)
+{
+    this->imguiFactor = value;
 }
-
 
 void Boid::updatePosition(double deltaTime)
 {
@@ -96,7 +94,6 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
     /* cohesion factor */
     const float cohesionFactor = 0.00005; // Ajustez cette valeur selon vos besoins
     //* this->imguiFactor
-    
 
     const float separationsFactor = 0.0001; // Ajustez cette valeur selon vos besoins
 
@@ -136,16 +133,16 @@ void Boid::show(p6::Context& ctx) const
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
-void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
+void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
 {
     // Position de la sphère dans l'espace view
     glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
 
     // Définir la position de la caméra
-    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
+    // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
 
     // Calculer la matrice de vue
-    glm::mat4 ViewMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 ViewMatrix = viewMatrix;
 
     // Appliquer la matrice de vue à la matrice modèle-vue (MVMatrix)
     glm::mat4 MVMatrix = glm::translate(ViewMatrix, spherePosition);

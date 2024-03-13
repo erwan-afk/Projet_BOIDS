@@ -12,15 +12,13 @@ private:
     const int          window_height = 720;
     const unsigned int nb_flock      = 100;
     const float        speed_factor  = 0.005;
-    p6::Context        ctx;
 
     std::vector<Boid*> flock;
 
     void Render();
 
-
-
 public:
+    p6::Context ctx;
     Simulation();
     void setImguiFactor(float value);
     void Run();
