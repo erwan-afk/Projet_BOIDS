@@ -20,10 +20,7 @@ struct ShapeVertex {
 
 // Définition du constructeur
 Simulation::Simulation()
-    : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx()
-{
-    // Initialisations supplémentaires si nécessaires
-}
+    : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx(){}
 
 void Simulation::setImguiFactor(float value)
 {
@@ -39,7 +36,13 @@ void Simulation::Run()
     for (unsigned int a = 0; a < this->nb_flock; a++)
     {
         // unique_ptr plutôt que new (ou alors pas de ptr du tout)
-        flock.push_back(new Boid{p6::random::number(-1, 1), p6::random::number(-1, 1), p6::random::number(-1, 1), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor), p6::random::number(-this->speed_factor, this->speed_factor)});
+        flock.push_back(new Boid{
+            p6::random::number(-1, 1), 
+            p6::random::number(-1, 1), 
+            p6::random::number(-1, 1), 
+            p6::random::number(-this->speed_factor, this->speed_factor), 
+            p6::random::number(-this->speed_factor, this->speed_factor), 
+            p6::random::number(-this->speed_factor, this->speed_factor)});
     }
 
     // lancer la boucle infini
@@ -180,7 +183,7 @@ void Simulation::Render()
 
         for (const auto& boid : flock)
         {
-            // boid->edges(this->ctx);
+            //boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
             // boid->show(ctx);

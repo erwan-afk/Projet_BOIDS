@@ -92,12 +92,13 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
     const float minSpeed        = 0.002; // Ajustez cette valeur selon vos besoins
 
     /* cohesion factor */
-    const float cohesionFactor = 0.00005; // Ajustez cette valeur selon vos besoins
+    const float cohesionFactor = 0.0005; // Ajustez cette valeur selon vos besoins
     //* this->imguiFactor
 
     const float separationsFactor = 0.0001; // Ajustez cette valeur selon vos besoins
 
-    const float separationsEdgesFactor = 0.00001; // Ajustez cette valeur selon vos besoins
+    const float separationsEdgesFactor = 0.000001; // Ajustez cette valeur selon vos besoins
+
 
     glm::vec3 alignment      = align(Boids);
     glm::vec3 cohesions      = cohesion(Boids);
@@ -194,7 +195,7 @@ glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.2f;
+    float perception = 0.001f;
     float total      = 0;
 
     glm::vec3 avgPosition(0.0f);
@@ -230,9 +231,11 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
     return avgPosition + avgVelocity;
 }
 
+
+
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.1f;
+    float perception = 0.001f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
@@ -265,9 +268,12 @@ glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
     return avgVelocity;
 }
 
+
+
+
 glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ctx)
 {
-    float perception = 0.1f;
+    float perception = 0.001f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
@@ -320,6 +326,8 @@ glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ct
     // Retourner la moyenne des composantes de vélocité
     return avgVelocity;
 }
+
+
 
 float Boid::getSpeed() const
 {
