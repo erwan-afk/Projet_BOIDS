@@ -1,4 +1,7 @@
 #include "Boid.hpp"
+#include <algorithm>
+#include "glm/fwd.hpp"
+#include "glm/geometric.hpp"
 
 Boid::Boid(float initPosX, float initPosY, float initPosZ, float initVelocityX, float initVelocityY, float initVelocityZ)
     : posX(initPosX), posY(initPosY), posZ(initPosZ), velocityX(initVelocityX), velocityY(initVelocityY), velocityZ(initVelocityZ) {}
@@ -143,11 +146,62 @@ void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMat
     // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
 
     // Calculer la matrice de vue
-    glm::mat4 ViewMatrix = viewMatrix;
+    //glm::mat4 ViewMatrix = viewMatrix;
 
     // Appliquer la matrice de vue à la matrice modèle-vue (MVMatrix)
-    glm::mat4 MVMatrix = glm::translate(ViewMatrix, spherePosition);
-    MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.02f));
+    glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
+    direction = glm::normalize(direction);
+    glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);  
+    directionOrthogonale = glm::normalize(directionOrthogonale);
+    glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
+    directionFinale = glm::normalize(directionFinale);
+
+    glm::mat4 rotationMatrix(
+        glm::vec4(directionFinale, 0.0f),
+            glm::vec4(direction, 0.0f),
+        glm::vec4(directionOrthogonale, 0.0f),
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+    );
+
+    //glm::mat4 MVMatrix = rotationMatrix;
+
+    //MVMatrix = glm::scale(MVMatrix, glm::vec3(0.015f));  
+    //MVMatrix = glm::translate(viewMatrix, spherePosition);  
+
+
+    //glm::mat4 MVMatrix = viewMatrix * rotationMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * glm::translate(glm::mat4{1.f}, spherePosition);  
+    glm::mat4 MVMatrix =  viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;  
+
+
+
+
+
+
+
+// glm::mat4 MVMatrix = glm::translate(viewMatrix, spherePosition);
+//     MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.015f));
+    
+//     glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
+//     glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);  
+//     glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
+
+//     glm::mat4 rotationMatrix(
+//         glm::vec4(direction, 0.0f),
+//         glm::vec4(directionOrthogonale, 0.0f),
+//         glm::vec4(directionFinale, 0.0f),
+//         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+//     );
+    
+//     MVMatrix = MVMatrix * rotationMatrix;
+
+
+
+
+
+
+
+
+
 
     // Calculer la matrice NormalMatrix
     glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
@@ -235,7 +289,7 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.001f;
+    float perception = 0.0025f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
@@ -273,7 +327,7 @@ glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ctx)
 {
-    float perception = 0.001f;
+    float perception = 0.005f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);

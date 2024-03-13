@@ -145,14 +145,18 @@ void Simulation::Render()
 
     TrackballCamera camera;
 
-    ctx.mouse_moved = [&](p6::MouseMove) {
+    ctx.mouse_released = [&](p6::MouseButton) {
+        ctx.mouse_moved = [&](p6::MouseMove) {
         glm::vec2 deltamouse = ctx.mouse_delta();
 
         camera.rotateLeft(deltamouse.x * 50);
         camera.rotateUp(deltamouse.y * 50);
     };
+    };
 
-    ctx.mouse_scrolled = [&](p6::MouseScroll) {
+    
+
+    ctx.mouse_scrolled = [&](p6::MouseScroll e) {
         glm::vec2 deltamouse = ctx.mouse_delta();
         camera.moveFront(deltamouse.y * 50);
     };
