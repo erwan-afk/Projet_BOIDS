@@ -20,7 +20,7 @@ struct ShapeVertex {
 
 // Définition du constructeur
 Simulation::Simulation()
-    : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx(){}
+    : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx() {}
 
 void Simulation::setImguiFactor(float value)
 {
@@ -37,12 +37,13 @@ void Simulation::Run()
     {
         // unique_ptr plutôt que new (ou alors pas de ptr du tout)
         flock.push_back(new Boid{
-            p6::random::number(-1, 1), 
-            p6::random::number(-1, 1), 
-            p6::random::number(-1, 1), 
-            p6::random::number(-this->speed_factor, this->speed_factor), 
-            p6::random::number(-this->speed_factor, this->speed_factor), 
-            p6::random::number(-this->speed_factor, this->speed_factor)});
+            p6::random::number(-1, 1),
+            p6::random::number(-1, 1),
+            p6::random::number(-1, 1),
+            p6::random::number(-this->speed_factor, this->speed_factor),
+            p6::random::number(-this->speed_factor, this->speed_factor),
+            p6::random::number(-this->speed_factor, this->speed_factor)
+        });
     }
 
     // lancer la boucle infini
@@ -145,20 +146,15 @@ void Simulation::Render()
 
     TrackballCamera camera;
 
-    ctx.mouse_released = [&](p6::MouseButton) {
-        ctx.mouse_moved = [&](p6::MouseMove) {
+    ctx.mouse_dragged = [&](p6::MouseDrag) {
         glm::vec2 deltamouse = ctx.mouse_delta();
 
         camera.rotateLeft(deltamouse.x * 50);
         camera.rotateUp(deltamouse.y * 50);
     };
-    };
-
-    
 
     ctx.mouse_scrolled = [&](p6::MouseScroll e) {
-        glm::vec2 deltamouse = ctx.mouse_delta();
-        camera.moveFront(deltamouse.y * 50);
+        camera.moveFront(-e.dy);
     };
 
     // Declare your infinite update loop.
@@ -187,7 +183,7 @@ void Simulation::Render()
 
         for (const auto& boid : flock)
         {
-            //boid->edges(this->ctx);
+            // boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
             // boid->show(ctx);
