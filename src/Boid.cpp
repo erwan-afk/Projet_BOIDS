@@ -289,7 +289,7 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.0025f;
+    float perception = 0.0001f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);

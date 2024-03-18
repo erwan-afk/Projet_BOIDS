@@ -1,6 +1,7 @@
 #include "Simulation.hpp"
 #include "Boid.hpp"
 #include "TrackballCamera.hpp"
+#include "Rules.hpp"
 
 /*Inclusion pour la 3D OpenGL*/
 #include <p6/p6.h>
@@ -47,6 +48,8 @@ void Simulation::Run()
     }
 
     // lancer la boucle infini
+    srand(static_cast<unsigned int>(time(nullptr)));
+    std::cout << uniforme(0.0,255.0) << std::endl;
     Render();
 }
 
