@@ -7,28 +7,30 @@
 
 
 
-double rand01()
+//base
+static auto& generator()
 {
     thread_local std::default_random_engine gen{std::random_device{}()};
-    thread_local auto distrib = std::uniform_real_distribution<double>{0.0, 1.0};
+    return gen;
+}
+float rand(float min, float max)
+{
+    if (min > max)
+        throw std::invalid_argument{"min must be smaller than max"};
 
-    return distrib(gen);
+    auto distribution = std::uniform_real_distribution<float>{min, max};
+    return distribution(generator());
 }
 
 
 
 
+//functions
 template<typename T>
 T uniforme(T min, T max) {
-
-    int random_num = rand01();
-
-    T scaled_num = static_cast<T>(random_num) / RAND_MAX;
-
-    T result = min + scaled_num * (max - min);
-
-    return result;
+    return rand(min, max);
 }
+
 
 
 
