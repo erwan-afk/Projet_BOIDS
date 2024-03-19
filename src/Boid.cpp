@@ -102,7 +102,6 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 
     const float separationsEdgesFactor = 0.000001; // Ajustez cette valeur selon vos besoins
 
-
     glm::vec3 alignment      = align(Boids);
     glm::vec3 cohesions      = cohesion(Boids);
     glm::vec3 separations    = separation(Boids);
@@ -137,80 +136,66 @@ void Boid::show(p6::Context& ctx) const
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
-void Boid::showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
+void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
 {
-    // Position de la sphère dans l'espace view
-    glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
-
     // Définir la position de la caméra
     // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
 
     // Calculer la matrice de vue
-    //glm::mat4 ViewMatrix = viewMatrix;
+    // glm::mat4 ViewMatrix = viewMatrix;
+
+    // glm::mat4 MVMatrix = rotationMatrix;
+
+    // MVMatrix = glm::scale(MVMatrix, glm::vec3(0.015f));
+    // MVMatrix = glm::translate(viewMatrix, spherePosition);
+
+    // glm::mat4 MVMatrix = viewMatrix * rotationMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * glm::translate(glm::mat4{1.f}, spherePosition);
+
+    // Position de la sphère dans l'espace view
+    glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
 
     // Appliquer la matrice de vue à la matrice modèle-vue (MVMatrix)
     glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
     direction = glm::normalize(direction);
-    glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);  
-    directionOrthogonale = glm::normalize(directionOrthogonale);
+    glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);
+    directionOrthogonale      = glm::normalize(directionOrthogonale);
     glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
-    directionFinale = glm::normalize(directionFinale);
+    directionFinale           = glm::normalize(directionFinale);
 
     glm::mat4 rotationMatrix(
         glm::vec4(directionFinale, 0.0f),
-            glm::vec4(direction, 0.0f),
+        glm::vec4(direction, 0.0f),
         glm::vec4(directionOrthogonale, 0.0f),
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
     );
 
-    //glm::mat4 MVMatrix = rotationMatrix;
-
-    //MVMatrix = glm::scale(MVMatrix, glm::vec3(0.015f));  
-    //MVMatrix = glm::translate(viewMatrix, spherePosition);  
-
-
-    //glm::mat4 MVMatrix = viewMatrix * rotationMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * glm::translate(glm::mat4{1.f}, spherePosition);  
-    glm::mat4 MVMatrix =  viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;  
-
-
-
-
-
-
-
-// glm::mat4 MVMatrix = glm::translate(viewMatrix, spherePosition);
-//     MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.015f));
-    
-//     glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
-//     glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);  
-//     glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
-
-//     glm::mat4 rotationMatrix(
-//         glm::vec4(direction, 0.0f),
-//         glm::vec4(directionOrthogonale, 0.0f),
-//         glm::vec4(directionFinale, 0.0f),
-//         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-//     );
-    
-//     MVMatrix = MVMatrix * rotationMatrix;
-
-
-
-
-
-
-
-
-
+    glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;
 
     // Calculer la matrice NormalMatrix
     glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
 
-    glUniformMatrix4fv(uMVPMatrixLocation, 1, GL_FALSE, glm::value_ptr(ProjMatrix * MVMatrix));
-    glUniformMatrix4fv(uMVMatrixLocation, 1, GL_FALSE, glm::value_ptr(MVMatrix));
-    glUniformMatrix4fv(uNormalMatrixLocation, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+    // Envoyer les matrices aux uniformes
+    Shader.setMVPMatrix(ProjMatrix, MVMatrix);
+    Shader.setMVMatrix(MVMatrix);
+    Shader.setNormalMatrix(NormalMatrix);
 
     glDrawArrays(GL_TRIANGLES, 0, vertices_sphere.size());
+
+    // glm::mat4 MVMatrix = glm::translate(viewMatrix, spherePosition);
+    //     MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.015f));
+
+    //     glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
+    //     glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);
+    //     glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
+
+    //     glm::mat4 rotationMatrix(
+    //         glm::vec4(direction, 0.0f),
+    //         glm::vec4(directionOrthogonale, 0.0f),
+    //         glm::vec4(directionFinale, 0.0f),
+    //         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+    //     );
+
+    //     MVMatrix = MVMatrix * rotationMatrix;
 }
 
 glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
@@ -285,8 +270,6 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
     return avgPosition + avgVelocity;
 }
 
-
-
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
     float perception = 0.0001f;
@@ -321,9 +304,6 @@ glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 
     return avgVelocity;
 }
-
-
-
 
 glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ctx)
 {
@@ -380,8 +360,6 @@ glm::vec3 Boid::separationEdges(const std::vector<Boid*>& Boids, p6::Context& ct
     // Retourner la moyenne des composantes de vélocité
     return avgVelocity;
 }
-
-
 
 float Boid::getSpeed() const
 {

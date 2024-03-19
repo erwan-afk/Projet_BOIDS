@@ -1,7 +1,7 @@
 #include "Simulation.hpp"
 #include "Boid.hpp"
-#include "TrackballCamera.hpp"
 #include "Rules.hpp"
+#include "TrackballCamera.hpp"
 
 /*Inclusion pour la 3D OpenGL*/
 #include <p6/p6.h>
@@ -48,8 +48,12 @@ void Simulation::Run()
     }
 
     // lancer la boucle infini
-    srand(static_cast<unsigned int>(time(nullptr)));
-    std::cout << uniforme(0.0,255.0) << std::endl;
+    for (int a = 0; a < 100; a++)
+    {
+        srand(static_cast<unsigned int>(time(nullptr)));
+        std::cout << uniforme(0.0, 1.0) << std::endl;
+    }
+
     Render();
 }
 
@@ -89,12 +93,15 @@ private:
 
 void Simulation::Render()
 {
+    /*
     const p6::Shader shader = p6::load_shader(
         "shaders/3D.vs.glsl",
         "shaders/normals.fs.glsl"
     );
+    */
 
-    UniqueBuffer vbo; // Use UniqueBuffer to manage VBO
+    // Création d'une instance de ModelShader avec les shaders chargés
+    ModelShader Shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl");
 
     const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
     const std::vector<glimac::ShapeVertex> vertices_cube   = {
@@ -109,6 +116,7 @@ void Simulation::Render()
         {glm::vec3(-0.5f, 0.5f, 0.5f)}    // Vertex 7
     };
 
+    UniqueBuffer vbo; // Use UniqueBuffer to manage VBO
     glBindBuffer(GL_ARRAY_BUFFER, vbo.id());
     glBufferData(GL_ARRAY_BUFFER, vertices_sphere.size() * sizeof(ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -136,9 +144,13 @@ void Simulation::Render()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    /*
+
     GLuint uMVPMatrixLocation    = glGetUniformLocation(shader.id(), "uMVPMatrix");
     GLuint uMVMatrixLocation     = glGetUniformLocation(shader.id(), "uMVMatrix");
     GLuint uNormalMatrixLocation = glGetUniformLocation(shader.id(), "uNormalMatrix");
+
+    */
 
     glEnable(GL_DEPTH_TEST);
 
@@ -177,7 +189,9 @@ void Simulation::Render()
         // Bind the VAO before rendering
         glBindVertexArray(vao);
 
-        shader.use();
+        // shader.use();
+        //  Utiliser le shader
+        Shader.use();
 
         // Calculez la matrice de projection
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
@@ -190,7 +204,7 @@ void Simulation::Render()
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
             // boid->show(ctx);
-            boid->showOpenGL(this->ctx, uMVPMatrixLocation, uMVMatrixLocation, uNormalMatrixLocation, ProjMatrix, viewMatrix, vertices_sphere);
+            boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, vertices_sphere);
         }
 
         glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());

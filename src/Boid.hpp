@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include "Boid.hpp"
+#include "ModelShader.hpp"
 #include "glimac/sphere_vertices.hpp"
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
@@ -51,7 +52,7 @@ public:
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
 
-    void showOpenGL(p6::Context& ctx, GLuint uMVPMatrixLocation, GLuint uMVMatrixLocation, GLuint uNormalMatrixLocation, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const;
+    void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const;
 
     /*Physique*/
     void      flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
