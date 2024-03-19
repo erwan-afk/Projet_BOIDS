@@ -26,6 +26,7 @@ float rand(float min, float max)
 
 
 //functions
+
 template<typename T>
 T uniforme(T min, T max) {
     return rand(min, max);

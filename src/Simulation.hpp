@@ -20,7 +20,11 @@ private:
 public:
     p6::Context ctx;
     Simulation();
-    void setImguiFactor(float value);
+    
+    void setImguiFactorAlign(float value);
+    void setImguiFactorCohesion(float value);
+    void setImguiFactorSeparation(float value);
+    
     void Run();
 
     //~Simulation();

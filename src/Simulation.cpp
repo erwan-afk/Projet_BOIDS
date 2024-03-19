@@ -23,11 +23,25 @@ struct ShapeVertex {
 Simulation::Simulation()
     : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx() {}
 
-void Simulation::setImguiFactor(float value)
+void Simulation::setImguiFactorAlign(float value)
 {
     for (Boid* boid : flock)
     {
-        boid->setImguiFactor(value);
+        boid->setImguiFactorAlign(value);
+    }
+}
+void Simulation::setImguiFactorCohesion(float value)
+{
+    for (Boid* boid : flock)
+    {
+        boid->setImguiFactorCohesion(value);
+    }
+}
+void Simulation::setImguiFactorSeparation(float value)
+{
+    for (Boid* boid : flock)
+    {
+        boid->setImguiFactorSeparation(value);
     }
 }
 
@@ -157,7 +171,9 @@ void Simulation::Render()
     double deltaTime = 0.001;
     // ImGui default values
     glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
-    float     separationPerception = 1.0;
+    float     separationPerception = 0.0;
+    float     scohesionPerception = 0.0;
+    float     alignPerception = 0.0;
 
     TrackballCamera camera;
 
@@ -175,12 +191,16 @@ void Simulation::Render()
     // Declare your infinite update loop.
     ctx.update = [&]() {
         ImGui::Begin("Option");
-        ImGui::SliderFloat("Separation", &separationPerception, 1.0, 10.0);
+        ImGui::SliderFloat("Separation", &separationPerception, 0.0, 1.0);
+        ImGui::SliderFloat("Cohesion", &scohesionPerception, 0.0, 1.0);
+        ImGui::SliderFloat("Align", &alignPerception, 0.0, 1.0);
         ImGui::ColorPicker4("Background Color", (float*)&background_color);
         ImGui::End();
 
         // set ImGui Options
-        Simulation::setImguiFactor(separationPerception);
+        Simulation::setImguiFactorSeparation(separationPerception*0.02);
+        Simulation::setImguiFactorCohesion(scohesionPerception*0.0005);
+        Simulation::setImguiFactorAlign(alignPerception*0.35);
 
         // Clear the screen
         glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
