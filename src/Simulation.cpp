@@ -144,8 +144,8 @@ void Simulation::Render()
     // ImGui default values
     glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
     float     separationPerception = 0.0;
-    float     scohesionPerception = 0.0;
-    float     alignPerception = 0.0;
+    float     scohesionPerception  = 0.0;
+    float     alignPerception      = 0.0;
 
     TrackballCamera camera;
 
@@ -172,9 +172,9 @@ void Simulation::Render()
         ImGui::End();
 
         // set ImGui Options
-        Simulation::setImguiFactorSeparation(separationPerception*0.02);
-        Simulation::setImguiFactorCohesion(scohesionPerception*0.0005);
-        Simulation::setImguiFactorAlign(alignPerception*0.35);
+        Simulation::setImguiFactorSeparation(separationPerception * 0.02);
+        Simulation::setImguiFactorCohesion(scohesionPerception * 0.0005);
+        Simulation::setImguiFactorAlign(alignPerception * 0.35);
 
         // Clear the screen
         glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
@@ -184,7 +184,7 @@ void Simulation::Render()
         glBindVertexArray(vao);
 
         // shader.use();
-        //  Utiliser le shader
+        // Utiliser le shaderrr
         Shader.use();
 
         // Calculez la matrice de projection
