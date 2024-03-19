@@ -1,23 +1,22 @@
-#include "Simulation.hpp"
-#include "Boid.hpp"
-#include "Rules.hpp"
-#include "TrackballCamera.hpp"
+
 
 /*Inclusion pour la 3D OpenGL*/
+
 #include <p6/p6.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+/**/
+#include "Boid.hpp"
+#include "ModelMesh.hpp"
+#include "Rules.hpp"
+#include "Simulation.hpp"
+#include "TrackballCamera.hpp"
 #include "glimac/cone_vertices.hpp"
 #include "glimac/sphere_vertices.hpp"
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
-
-struct ShapeVertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoords;
-};
 
 // Définition du constructeur
 Simulation::Simulation()
@@ -57,40 +56,6 @@ void Simulation::Run()
     Render();
 }
 
-class UniqueBuffer {
-public:
-    UniqueBuffer()
-    {
-        glGenBuffers(1, &_id); // Do whatever you need to create the resource
-    }
-    ~UniqueBuffer()
-    {
-        glDeleteBuffers(1, &_id); // Do whatever you need to delete the resource
-    }
-    UniqueBuffer(const UniqueBuffer&)            = delete; // We disable copying
-    UniqueBuffer& operator=(const UniqueBuffer&) = delete; // We disable copying
-    UniqueBuffer(UniqueBuffer&& other) noexcept            // Move constructor
-        : _id{other._id}
-    {
-        other._id = 0; // Make sure that other won't delete the _id we just copied
-    }
-    UniqueBuffer& operator=(UniqueBuffer&& other) noexcept // Move assignment operator
-    {
-        if (this != &other)
-        {                             // Make sure that we don't do silly things when we try to move an object to itself
-            glDeleteBuffers(1, &_id); // Delete the previous object
-            _id       = other._id;    // Copy the object
-            other._id = 0;            // Make sure that other won't delete the _id we just copied
-        }
-        return *this; // move assignment must return a reference to this, so we do it
-    }
-
-    GLuint id() const { return _id; } // The getter for the wrapped `_id`.
-
-private:
-    GLuint _id;
-};
-
 void Simulation::Render()
 {
     /*
@@ -103,8 +68,15 @@ void Simulation::Render()
     // Création d'une instance de ModelShader avec les shaders chargés
     ModelShader Shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl");
 
-    const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
-    const std::vector<glimac::ShapeVertex> vertices_cube   = {
+    OBJModel fish;
+    fish.LoadFromFile("../meshs/fish.obj");
+
+    std::vector<glimac::ShapeVertex> vertices_sphere = fish.GetVertexData();
+    int                              vertexCount     = fish.GetVertexCount();
+
+    // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
+
+    const std::vector<glimac::ShapeVertex> vertices_cube = {
         // Define cube vertices (positions only)
         {glm::vec3(-0.5f, -0.5f, -0.5f)}, // Vertex 0
         {glm::vec3(0.5f, -0.5f, -0.5f)},  // Vertex 1
@@ -118,7 +90,7 @@ void Simulation::Render()
 
     UniqueBuffer vbo; // Use UniqueBuffer to manage VBO
     glBindBuffer(GL_ARRAY_BUFFER, vbo.id());
-    glBufferData(GL_ARRAY_BUFFER, vertices_sphere.size() * sizeof(ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(glimac::ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Use UniqueBuffer to automatically handle deletion
@@ -130,15 +102,15 @@ void Simulation::Render()
 
     static constexpr GLuint vertex_attr_position = 0;
     glEnableVertexAttribArray(vertex_attr_position);
-    glVertexAttribPointer(vertex_attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, position)));
+    glVertexAttribPointer(vertex_attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, position)));
 
     static constexpr GLuint vertex_attr_normal = 1;
     glEnableVertexAttribArray(vertex_attr_normal);
-    glVertexAttribPointer(vertex_attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, normal)));
+    glVertexAttribPointer(vertex_attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, normal)));
 
     static constexpr GLuint vertex_attr_texCoords = 2;
     glEnableVertexAttribArray(vertex_attr_texCoords);
-    glVertexAttribPointer(vertex_attr_texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(ShapeVertex), (const GLvoid*)(offsetof(ShapeVertex, texCoords)));
+    glVertexAttribPointer(vertex_attr_texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, texCoords)));
 
     // Unbind the VAO
     glBindVertexArray(0);
@@ -160,6 +132,8 @@ void Simulation::Render()
     float     separationPerception = 1.0;
 
     TrackballCamera camera;
+
+    // ModelMesh fish("fish.obj");
 
     ctx.mouse_dragged = [&](p6::MouseDrag) {
         glm::vec2 deltamouse = ctx.mouse_delta();

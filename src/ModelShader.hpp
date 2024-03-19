@@ -1,3 +1,5 @@
+#pragma once
+
 #include <p6/p6.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
