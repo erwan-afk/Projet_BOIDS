@@ -32,9 +32,17 @@ float Boid::getVelocityZ() const
     return this->velocityZ;
 }
 
-void Boid::setImguiFactor(float value)
+void Boid::setImguiFactorAlign(float value)
 {
-    this->imguiFactor = value;
+    this->imguiFactorAlign = value;
+}
+void Boid::setImguiFactorCohesion(float value)
+{
+    this->imguiFactorCohesion = value;
+}
+void Boid::setImguiFactorSeparation(float value)
+{
+    this->imguiFactorSeparation = value;
 }
 
 void Boid::updatePosition(double deltaTime)
@@ -109,9 +117,14 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 
     // Appliquer l'alignement comme une fraction de la moyenne des vélocités des voisins
 
-    accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor * this->imguiFactor + separationEdge.x * separationsEdgesFactor);
-    accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor * this->imguiFactor + separationEdge.y * separationsEdgesFactor);
-    accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor * this->imguiFactor + separationEdge.z * separationsEdgesFactor);
+    // accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor * this->imguiFactor + separationEdge.x * separationsEdgesFactor);
+    // accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor * this->imguiFactor + separationEdge.y * separationsEdgesFactor);
+    // accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor * this->imguiFactor + separationEdge.z * separationsEdgesFactor);
+    accelerationX = (alignment.x * alignmentFactor + cohesions.x * cohesionFactor + separations.x * separationsFactor + separationEdge.x * separationsEdgesFactor);
+    accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor + separationEdge.y * separationsEdgesFactor);
+    accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor + separationEdge.z * separationsEdgesFactor);
+
+
     /*
     accelerationX = separations.first * separationsFactor;
     accelerationY = separations.second * separationsFactor;
@@ -200,7 +213,7 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
 
 glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.4f;
+    float perception = 0.35f + this->imguiFactorAlign;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
@@ -234,7 +247,7 @@ glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.001f;
+    float perception = 0.0005f + this->imguiFactorCohesion;
     float total      = 0;
 
     glm::vec3 avgPosition(0.0f);
@@ -272,7 +285,8 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.0001f;
+    float perception = 0.02f + this->imguiFactorSeparation;
+    //float perception = 0.0001f;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);

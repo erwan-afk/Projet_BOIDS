@@ -31,7 +31,9 @@ private:
 
     float maxSpeed = 0.0;
 
-    float imguiFactor = 1.0;
+    float imguiFactorAlign;
+    float imguiFactorCohesion;
+    float imguiFactorSeparation;
 
 public:
     // Constructeur
@@ -45,7 +47,9 @@ public:
     float getVelocityY() const;
     float getVelocityZ() const;
 
-    void setImguiFactor(float value);
+    void setImguiFactorAlign(float value);
+    void setImguiFactorCohesion(float value);
+    void setImguiFactorSeparation(float value);
 
     /*Update et affichage*/
     void updatePosition(double deltaTime);
