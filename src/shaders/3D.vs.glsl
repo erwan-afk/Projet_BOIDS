@@ -10,6 +10,7 @@ uniform mat4 uNormalMatrix;
 
 out vec3 fragNormal;
 out vec2 fragTexCoords;
+uniform sampler2D textureSampler;
 
 void main() {
     // Transform the vertex position and normal to view coordinates
@@ -19,4 +20,5 @@ void main() {
 
     // Pass texture coordinates without modification
     fragTexCoords = inTexCoords;
+
 }

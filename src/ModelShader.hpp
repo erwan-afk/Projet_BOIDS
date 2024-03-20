@@ -10,9 +10,10 @@ public:
         : shader(p6::load_shader(vertexPath, fragmentPath))
     {
         // Obtenir les emplacements des uniformes après avoir chargé le shader
-        uMVPMatrixLocation    = glGetUniformLocation(shader.id(), "uMVPMatrix");
-        uMVMatrixLocation     = glGetUniformLocation(shader.id(), "uMVMatrix");
-        uNormalMatrixLocation = glGetUniformLocation(shader.id(), "uNormalMatrix");
+        uMVPMatrixLocation     = glGetUniformLocation(shader.id(), "uMVPMatrix");
+        uMVMatrixLocation      = glGetUniformLocation(shader.id(), "uMVMatrix");
+        uNormalMatrixLocation  = glGetUniformLocation(shader.id(), "uNormalMatrix");
+        textureSamplerLocation = glGetUniformLocation(shader.id(), "textureSampler");
     }
 
     ~ModelShader() {}
@@ -20,6 +21,7 @@ public:
     GLuint uMVPMatrixLocation;
     GLuint uMVMatrixLocation;
     GLuint uNormalMatrixLocation;
+    GLuint textureSamplerLocation;
 
     // Méthode pour utiliser le shader
     void use() const

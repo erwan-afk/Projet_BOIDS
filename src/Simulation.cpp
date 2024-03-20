@@ -61,7 +61,7 @@ void Simulation::Run()
     }
 
     // lancer la boucle infini
-    for (int a = 0; a < 100; a++)
+    for (int a = 0; a < 300; a++)
     {
         srand(static_cast<unsigned int>(time(nullptr)));
         std::cout << uniforme(0.0, 1.0) << std::endl;
@@ -92,7 +92,7 @@ void Simulation::Render()
 */
     ModelMesh fish2("../meshs/fish.obj");
     ModelMesh cube("../meshs/cube2.obj");
-    ModelMesh fond_marin("../meshs/fond_marin.obj");
+    // ModelMesh fond_marin("../meshs/fond_marin.obj");
 
     // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
 
@@ -211,7 +211,7 @@ void Simulation::Render()
         }
 
         cube.Draw(Shader, ProjMatrix, viewMatrix);
-        fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
+        // fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
 
         // glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());
 

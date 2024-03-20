@@ -121,7 +121,7 @@ public:
     void                             LoadFromFile(const char* fileName);
     std::vector<glimac::ShapeVertex> GetVertexData();
     int                              GetVertexCount();
-    Texture getTexture(); 
+    std::string                      getTextureLink();
 
 private:
     struct Position {
@@ -134,11 +134,12 @@ private:
         float x, y, z;
     };
 
-    void                             LoadMaterialFile(const char* fileName);
-    bool                             StartWith(std::string& line, const char* text);
-    void                             AddVertexData(int vIdx, int nIdx, const char* mtl, std::vector<Position>& vertices, std::vector<Normal>& normals, std::vector<textCoords>& coord_texture);
-    //std::map<std::string, Color>     MaterialMap;
+    void LoadMaterialFile(const char* fileName);
+    bool StartWith(std::string& line, const char* text);
+    void AddVertexData(int vIdx, int nIdx, int tIdx, std::vector<Position>& vertices, std::vector<Normal>& normals, std::vector<textCoords>& coord_texture);
+    // std::map<std::string, Color>     MaterialMap;
     std::vector<glimac::ShapeVertex> shapeVertices;
+    std::string                      textureLink;
 };
 
 class ModelMesh {
@@ -149,10 +150,11 @@ public:
     void              Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix);
     UniqueBuffer      vbo;
     UniqueVertexArray vao;
-    Texture texture; 
+    Texture           texture;
 
 private:
     void                             LoadModel(const char* filePath);
+    void                             LoadTexture(std::string filePath);
     std::vector<glimac::ShapeVertex> vertices;
     int                              vertexCount;
 };
