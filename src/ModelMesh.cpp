@@ -168,13 +168,16 @@ void OBJModel::LoadMaterialFile(const char* filename)
         {
             if (StartWith(line, "newmtl"))
             {
-                (void)sscanf_s(line.c_str(), "newmtl %s", mtlName, sizeof(mtlName));
+                std::istringstream iss(line.substr(7)); // Ignorer "newmtl " dans la ligne
+                iss >> mtlName;
                 MaterialMap[mtlName] = Color();
             }
+
             if (StartWith(line, "Kd"))
             {
-                Color& color = MaterialMap[mtlName];
-                sscanf_s(line.c_str(), "Kd %f %f %f", &color.r, &color.g, &color.b);
+                Color&             color = MaterialMap[mtlName];
+                std::istringstream iss(line.substr(3)); // Ignorer "Kd " dans la ligne
+                iss >> color.r >> color.g >> color.b;
             }
         }
     }
