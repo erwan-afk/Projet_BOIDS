@@ -121,13 +121,14 @@ public:
     void                             LoadFromFile(const char* fileName);
     std::vector<glimac::ShapeVertex> GetVertexData();
     int                              GetVertexCount();
+    Texture getTexture(); 
 
 private:
     struct Position {
         float x, y, z;
     };
-    struct Color {
-        float r, g, b;
+    struct textCoords {
+        float x, y;
     };
     struct Normal {
         float x, y, z;
@@ -135,8 +136,8 @@ private:
 
     void                             LoadMaterialFile(const char* fileName);
     bool                             StartWith(std::string& line, const char* text);
-    void                             AddVertexData(int vIdx, int nIdx, const char* mtl, std::vector<Position>& vertices, std::vector<Normal>& normals);
-    std::map<std::string, Color>     MaterialMap;
+    void                             AddVertexData(int vIdx, int nIdx, const char* mtl, std::vector<Position>& vertices, std::vector<Normal>& normals, std::vector<textCoords>& coord_texture);
+    //std::map<std::string, Color>     MaterialMap;
     std::vector<glimac::ShapeVertex> shapeVertices;
 };
 
@@ -148,6 +149,7 @@ public:
     void              Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix);
     UniqueBuffer      vbo;
     UniqueVertexArray vao;
+    Texture texture; 
 
 private:
     void                             LoadModel(const char* filePath);

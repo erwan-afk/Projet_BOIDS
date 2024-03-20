@@ -91,7 +91,7 @@ void Simulation::Render()
     int                              vertexCount     = fish.GetVertexCount();
 */
     ModelMesh fish2("../meshs/fish.obj");
-    ModelMesh cube("../meshs/cube.obj");
+    ModelMesh cube("../meshs/cube2.obj");
     ModelMesh fond_marin("../meshs/fond_marin.obj");
 
     // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
