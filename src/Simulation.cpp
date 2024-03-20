@@ -82,13 +82,21 @@ void Simulation::Render()
     // Création d'une instance de ModelShader avec les shaders chargés
     ModelShader Shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl");
 
+    /*
+
     OBJModel fish;
     fish.LoadFromFile("../meshs/fish.obj");
 
     std::vector<glimac::ShapeVertex> vertices_sphere = fish.GetVertexData();
     int                              vertexCount     = fish.GetVertexCount();
+*/
+    ModelMesh fish2("../meshs/fish.obj");
+    ModelMesh cube("../meshs/cube.obj");
+    ModelMesh fond_marin("../meshs/fond_marin.obj");
 
     // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
+
+    /*
 
     const std::vector<glimac::ShapeVertex> vertices_cube = {
         // Define cube vertices (positions only)
@@ -130,7 +138,7 @@ void Simulation::Render()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /*
+
 
     GLuint uMVPMatrixLocation    = glGetUniformLocation(shader.id(), "uMVPMatrix");
     GLuint uMVMatrixLocation     = glGetUniformLocation(shader.id(), "uMVMatrix");
@@ -148,8 +156,6 @@ void Simulation::Render()
     float     alignPerception      = 0.0;
 
     TrackballCamera camera;
-
-    // ModelMesh fish("fish.obj");
 
     ctx.mouse_dragged = [&](p6::MouseDrag) {
         glm::vec2 deltamouse = ctx.mouse_delta();
@@ -181,11 +187,14 @@ void Simulation::Render()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Bind the VAO before rendering
-        glBindVertexArray(vao);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
         // shader.use();
         // Utiliser le shaderrr
         Shader.use();
+
+        // glBindVertexArray(vao);
 
         // Calculez la matrice de projection
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
@@ -198,12 +207,15 @@ void Simulation::Render()
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
             // boid->show(ctx);
-            boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, vertices_sphere);
+            boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, fish2);
         }
 
-        glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());
+        cube.Draw(Shader, ProjMatrix, viewMatrix);
+        fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
 
-        glBindVertexArray(0);
+        // glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());
+
+        // glBindVertexArray(0);
     };
 
     ctx.start();

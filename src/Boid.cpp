@@ -124,7 +124,6 @@ void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
     accelerationY = (alignment.y * alignmentFactor + cohesions.y * cohesionFactor + separations.y * separationsFactor + separationEdge.y * separationsEdgesFactor);
     accelerationZ = (alignment.z * alignmentFactor + cohesions.z * cohesionFactor + separations.z * separationsFactor + separationEdge.z * separationsEdgesFactor);
 
-
     /*
     accelerationX = separations.first * separationsFactor;
     accelerationY = separations.second * separationsFactor;
@@ -149,7 +148,7 @@ void Boid::show(p6::Context& ctx) const
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
-void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, std::vector<glimac::ShapeVertex> vertices_sphere) const
+void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2) const
 {
     // Définir la position de la caméra
     // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
@@ -184,6 +183,8 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
 
     glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;
 
+    /*
+
     // Calculer la matrice NormalMatrix
     glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
 
@@ -193,6 +194,10 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
     Shader.setNormalMatrix(NormalMatrix);
 
     glDrawArrays(GL_TRIANGLES, 0, vertices_sphere.size());
+
+    */
+
+    fish2.Draw(Shader, ProjMatrix, MVMatrix);
 
     // glm::mat4 MVMatrix = glm::translate(viewMatrix, spherePosition);
     //     MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.015f));
@@ -286,8 +291,8 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
     float perception = 0.02f + this->imguiFactorSeparation;
-    //float perception = 0.0001f;
-    float total      = 0;
+    // float perception = 0.0001f;
+    float total = 0;
 
     glm::vec3 avgVelocity(0.0f);
 

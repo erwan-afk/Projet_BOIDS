@@ -13,7 +13,7 @@ out vec2 fragTexCoords;
 
 void main() {
     // Transform the vertex position and normal to view coordinates
-    vec4 viewPosition = uMVMatrix * vec4(inPosition, 1.0);
+
     gl_Position = uMVPMatrix * vec4(inPosition, 1.0);
     fragNormal = (uNormalMatrix * vec4(inNormal, 1)).xyz;
 
