@@ -10,15 +10,26 @@ uniform mat4 uNormalMatrix;
 
 out vec3 fragNormal;
 out vec2 fragTexCoords;
-uniform sampler2D textureSampler;
+out float fragLinearDepth;
+
+float near = 0.1;
+float far = 100.0;
+
+float linearizeDepth(float depth) {
+    return (2.0 * near * far) / (far + near - depth * (far - near));
+}
+
+float logisticDepth(float depth, float steepness, float offset) {
+    float zVal = linearizeDepth(depth);
+    return 1.0 / (1.0 + exp(-steepness * (zVal - offset)));
+}
 
 void main() {
-    // Transform the vertex position and normal to view coordinates
-
     gl_Position = uMVPMatrix * vec4(inPosition, 1.0);
     fragNormal = (uNormalMatrix * vec4(inNormal, 1)).xyz;
-
-    // Pass texture coordinates without modification
     fragTexCoords = inTexCoords;
 
+    // Output linearized depth value
+    float depth = logisticDepth(gl_Position.z / gl_Position.w, 1.5, 1.0);
+    fragLinearDepth = depth;
 }

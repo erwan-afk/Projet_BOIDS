@@ -61,7 +61,7 @@ void Simulation::Run()
     }
 
     // lancer la boucle infini
-    for (int a = 0; a < 300; a++)
+    for (int a = 0; a < 200; a++)
     {
         srand(static_cast<unsigned int>(time(nullptr)));
         std::cout << uniforme(0.0, 1.0) << std::endl;
@@ -149,8 +149,8 @@ void Simulation::Render()
     glEnable(GL_DEPTH_TEST);
 
     double deltaTime = 0.001;
-    // ImGui default values
-    glm::vec4 background_color     = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f); // Default background color
+    // ImGui default values  vec3(0.0, 0.3725, 1.0)
+    glm::vec4 background_color     = glm::vec4(0.0f, 0.3725f, 1.0f, 1.0f); // Default background color
     float     separationPerception = 0.0;
     float     scohesionPerception  = 0.0;
     float     alignPerception      = 0.0;
@@ -211,6 +211,7 @@ void Simulation::Render()
         }
 
         cube.Draw(Shader, ProjMatrix, viewMatrix);
+        cube.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, 0.0f, -10.0f)));
         // fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
 
         // glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());

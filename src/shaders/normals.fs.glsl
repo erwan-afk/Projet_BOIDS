@@ -1,16 +1,24 @@
 #version 330 core
 
 in vec3 fragNormal;
-in vec2 fragTexCoords; // Utilisez le même nom que celui défini dans le vertex shader pour les coordonnées de texture
+in vec2 fragTexCoords;
+in float fragLinearDepth;
 
 out vec4 fragColor;
 
-uniform sampler2D textureSampler; // Utilisez le même nom que celui défini dans le vertex shader pour l'uniforme de texture
+uniform sampler2D textureSampler;
 
 void main() {
-    // Utilisez la fonction texture pour échantillonner la texture à partir des coordonnées de texture
+    // Sample texture using texture coordinates
     vec4 texColor = texture(textureSampler, fragTexCoords);
 
-    // Utilisez la couleur de la texture comme couleur finale
-    fragColor = texColor;
+    // Apply depth effect
+    float depthEffect = fragLinearDepth;
+
+    // Combine texture color with depth effect
+    vec3 finalColor = texColor.rgb * (1.0 - depthEffect) + depthEffect * vec3(0.0, 0.3725, 1.0);
+
+    // Output final color
+    fragColor = vec4(finalColor, 1.0);
+
 }
