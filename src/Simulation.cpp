@@ -9,6 +9,7 @@
 #include <vector>
 /**/
 #include "Boid.hpp"
+#include "GLFW/glfw3.h"
 #include "ModelMesh.hpp"
 #include "Rules.hpp"
 #include "Simulation.hpp"
@@ -92,6 +93,7 @@ void Simulation::Render()
 */
     ModelMesh fish2("../meshs/fish.obj");
     ModelMesh cube("../meshs/cube2.obj");
+    ModelMesh ocean("../meshs/ocean.obj");
     // ModelMesh fond_marin("../meshs/fond_marin.obj");
 
     // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
@@ -156,16 +158,21 @@ void Simulation::Render()
     float     alignPerception      = 0.0;
 
     TrackballCamera camera;
+    FreeflyCamera   camera2;
 
     ctx.mouse_dragged = [&](p6::MouseDrag) {
         glm::vec2 deltamouse = ctx.mouse_delta();
 
         camera.rotateLeft(deltamouse.x * 50);
         camera.rotateUp(deltamouse.y * 50);
+
+        camera2.rotateLeft(-deltamouse.x * 50);
+        camera2.rotateUp(-deltamouse.y * 50);
     };
 
     ctx.mouse_scrolled = [&](p6::MouseScroll e) {
         camera.moveFront(-e.dy);
+        camera2.moveFront(-e.dy);
     };
 
     // Declare your infinite update loop.
@@ -181,6 +188,25 @@ void Simulation::Render()
         Simulation::setImguiFactorSeparation(separationPerception * 0.02);
         Simulation::setImguiFactorCohesion(scohesionPerception * 0.0005);
         Simulation::setImguiFactorAlign(alignPerception * 0.35);
+
+        if (ctx.key_is_pressed(GLFW_KEY_W))
+        {
+            camera2.moveFront(0.01f);
+        }
+
+        if (ctx.key_is_pressed(GLFW_KEY_A))
+        {
+            camera2.moveLeft(-0.01f);
+        }
+        if (ctx.key_is_pressed(GLFW_KEY_D))
+        {
+            camera2.moveLeft(0.01f);
+        }
+
+        if (ctx.key_is_pressed(GLFW_KEY_S))
+        {
+            camera2.moveFront(-0.01f);
+        }
 
         // Clear the screen
         glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
@@ -199,7 +225,7 @@ void Simulation::Render()
         // Calculez la matrice de projection
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
         // Calcul de la matrice de vue
-        glm::mat4 viewMatrix = camera.getViewMatrix();
+        glm::mat4 viewMatrix = camera2.getViewMatrix();
 
         for (const auto& boid : flock)
         {
@@ -211,7 +237,7 @@ void Simulation::Render()
         }
 
         cube.Draw(Shader, ProjMatrix, viewMatrix);
-        cube.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, 0.0f, -10.0f)));
+        ocean.Draw(Shader, ProjMatrix, viewMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(2.0f)));
         // fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
 
         // glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());

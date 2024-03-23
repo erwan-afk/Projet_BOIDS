@@ -1,7 +1,66 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+
+
+class FreeflyCamera {
+private:
+    glm::vec3 m_Position;
+    float     m_Phi;
+    float     m_Theta;
+
+    glm::vec3 m_FrontVector;
+    glm::vec3 m_LeftVector;
+    glm::vec3 m_UpVector;
+
+    // Private method to compute direction vectors
+    void computeDirectionVectors()
+    {
+        m_FrontVector.x = std::sin(m_Theta) * std::cos(m_Phi);
+        m_FrontVector.y = std::sin(m_Phi);
+        m_FrontVector.z = std::cos(m_Theta) * std::cos(m_Phi);
+        m_LeftVector    = glm::normalize(glm::cross(m_FrontVector, glm::vec3(0.0f, 1.0f, 0.0f)));
+        m_UpVector      = glm::normalize(glm::cross(m_LeftVector, m_FrontVector));
+    }
+
+public:
+    // Constructor
+    FreeflyCamera()
+        : m_Position(0.0f), m_Phi(glm::pi<float>()), m_Theta(0.0f), m_FrontVector(0.0f, 0.0f, -1.0f), m_LeftVector(-1.0f, 0.0f, 0.0f), m_UpVector(0.0f, 1.0f, 0.0f)
+    {
+        computeDirectionVectors();
+    }
+
+    // Move along left vector
+    void moveLeft(float t) { m_Position += t * m_LeftVector; }
+
+    // Move along front vector
+    void moveFront(float t) { m_Position += t * m_FrontVector; }
+
+    // Rotate left
+    void rotateLeft(float degrees)
+    {
+        float radians = glm::radians(degrees);
+        m_Theta += radians;
+        computeDirectionVectors();
+    }
+
+    // Rotate up
+    void rotateUp(float degrees)
+    {
+        float radians = glm::radians(degrees);
+        m_Phi += radians;
+        computeDirectionVectors();
+    }
+
+    // Get view matrix
+    glm::mat4 getViewMatrix() const
+    {
+        return glm::lookAt(m_Position, m_Position + m_FrontVector, m_UpVector);
+    }
+};
 
 class TrackballCamera {
 private:

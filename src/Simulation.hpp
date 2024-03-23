@@ -10,7 +10,7 @@ private:
     std::string        name          = "Projet_BOIDS";
     const int          window_width  = 1280;
     const int          window_height = 720;
-    const unsigned int nb_flock      = 100;
+    const unsigned int nb_flock      = 200;
     const float        speed_factor  = 0.005;
 
     std::vector<Boid*> flock;
@@ -20,11 +20,11 @@ private:
 public:
     p6::Context ctx;
     Simulation();
-    
+
     void setImguiFactorAlign(float value);
     void setImguiFactorCohesion(float value);
     void setImguiFactorSeparation(float value);
-    
+
     void Run();
 
     //~Simulation();

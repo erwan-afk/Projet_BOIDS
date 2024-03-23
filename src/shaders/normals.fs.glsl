@@ -16,7 +16,7 @@ void main() {
     float depthEffect = fragLinearDepth;
 
     // Combine texture color with depth effect
-    vec3 finalColor = texColor.rgb * (1.0 - depthEffect) + depthEffect * vec3(0.0, 0.3725, 1.0);
+    vec3 finalColor = texColor.rgb * (1.0 - depthEffect) + depthEffect * vec3(0.0, 0.639, 1.0);
 
     // Output final color
     fragColor = vec4(finalColor, 1.0);
