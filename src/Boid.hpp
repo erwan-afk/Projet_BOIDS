@@ -53,7 +53,7 @@ public:
     void setImguiFactorSeparation(float value);
 
     /*Update et affichage*/
-    void updatePosition(double deltaTime);
+    void updatePosition(p6::Context& ctx, float speedFactor);
     void edges(p6::Context& ctx);
     void show(p6::Context& ctx) const;
 

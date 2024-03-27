@@ -9,6 +9,9 @@
 
 ModelMesh::ModelMesh(const char* filePath)
 {
+    this->position = glm::vec3(0., 0., 0.);
+    this->scale    = glm::vec3(1., 1., 1.);
+
     vertexCount = 0;
 
     LoadModel(filePath);

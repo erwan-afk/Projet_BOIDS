@@ -3,6 +3,7 @@
 #include <vector>
 #include "ModelShader.hpp"
 #include "glimac/common.hpp"
+#include "glm/fwd.hpp"
 
 class UniqueBuffer {
 public:
@@ -143,18 +144,20 @@ private:
 };
 
 class ModelMesh {
-public:
-    ModelMesh(const char* filePath);
-    ~ModelMesh();
-
-    void              Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix);
-    UniqueBuffer      vbo;
-    UniqueVertexArray vao;
-    Texture           texture;
-
 private:
     void                             LoadModel(const char* filePath);
     void                             LoadTexture(std::string filePath);
     std::vector<glimac::ShapeVertex> vertices;
     int                              vertexCount;
+    glm::vec3                        position;
+    glm::vec3                        scale;
+
+public:
+    void              Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix);
+    UniqueBuffer      vbo;
+    UniqueVertexArray vao;
+    Texture           texture;
+
+    ModelMesh(const char* filePath);
+    ~ModelMesh();
 };

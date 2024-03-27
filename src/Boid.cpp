@@ -45,11 +45,11 @@ void Boid::setImguiFactorSeparation(float value)
     this->imguiFactorSeparation = value;
 }
 
-void Boid::updatePosition(double deltaTime)
+void Boid::updatePosition(p6::Context& ctx, float speedFactor)
 {
-    posX += velocityX;
-    posY += velocityY;
-    posZ += velocityZ;
+    posX += (velocityX * ctx.delta_time()) * speedFactor;
+    posY += (velocityY * ctx.delta_time()) * speedFactor;
+    posZ += (velocityZ * ctx.delta_time()) * speedFactor;
 
     velocityX += accelerationX;
     velocityY += accelerationY;
@@ -150,19 +150,6 @@ void Boid::show(p6::Context& ctx) const
 
 void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2) const
 {
-    // Définir la position de la caméra
-    // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -2.0f); // Ajustez la valeur Z pour déplacer la caméra en arrière
-
-    // Calculer la matrice de vue
-    // glm::mat4 ViewMatrix = viewMatrix;
-
-    // glm::mat4 MVMatrix = rotationMatrix;
-
-    // MVMatrix = glm::scale(MVMatrix, glm::vec3(0.015f));
-    // MVMatrix = glm::translate(viewMatrix, spherePosition);
-
-    // glm::mat4 MVMatrix = viewMatrix * rotationMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * glm::translate(glm::mat4{1.f}, spherePosition);
-
     // Position de la sphère dans l'espace view
     glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
 
@@ -183,37 +170,7 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
 
     glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;
 
-    /*
-
-    // Calculer la matrice NormalMatrix
-    glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
-
-    // Envoyer les matrices aux uniformes
-    Shader.setMVPMatrix(ProjMatrix, MVMatrix);
-    Shader.setMVMatrix(MVMatrix);
-    Shader.setNormalMatrix(NormalMatrix);
-
-    glDrawArrays(GL_TRIANGLES, 0, vertices_sphere.size());
-
-    */
-
     fish2.Draw(Shader, ProjMatrix, MVMatrix);
-
-    // glm::mat4 MVMatrix = glm::translate(viewMatrix, spherePosition);
-    //     MVMatrix           = glm::scale(MVMatrix, glm::vec3(0.015f));
-
-    //     glm::vec3 direction(getVelocityX(), getVelocityY(), getVelocityZ());
-    //     glm::vec3 directionOrthogonale(-direction.y, direction.x, 0.0f);
-    //     glm::vec3 directionFinale = glm::cross(direction, directionOrthogonale);
-
-    //     glm::mat4 rotationMatrix(
-    //         glm::vec4(direction, 0.0f),
-    //         glm::vec4(directionOrthogonale, 0.0f),
-    //         glm::vec4(directionFinale, 0.0f),
-    //         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-    //     );
-
-    //     MVMatrix = MVMatrix * rotationMatrix;
 }
 
 glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
