@@ -214,7 +214,6 @@ void OBJModel::LoadMaterialFile(const char* filename)
         std::string line;
         while (std::getline(file, line))
         {
-            std::cout << "ok" << std::endl;
             if (StartWith(line, "map_Kd"))
             {
                 std::istringstream iss(line.substr(7));
