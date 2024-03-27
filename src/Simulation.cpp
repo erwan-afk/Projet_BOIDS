@@ -1,5 +1,3 @@
-
-
 /*Inclusion pour la 3D OpenGL*/
 
 #include <p6/p6.h>
@@ -73,85 +71,16 @@ void Simulation::Run()
 
 void Simulation::Render()
 {
-    /*
-    const p6::Shader shader = p6::load_shader(
-        "shaders/3D.vs.glsl",
-        "shaders/normals.fs.glsl"
-    );
-    */
-
-    // Création d'une instance de ModelShader avec les shaders chargés
     ModelShader Shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl");
 
-    /*
-
-    OBJModel fish;
-    fish.LoadFromFile("../meshs/fish.obj");
-
-    std::vector<glimac::ShapeVertex> vertices_sphere = fish.GetVertexData();
-    int                              vertexCount     = fish.GetVertexCount();
-*/
     ModelMesh fish2("../meshs/fish.obj");
     ModelMesh cube("../meshs/cube2.obj");
     ModelMesh ocean("../meshs/ocean.obj");
-    // ModelMesh fond_marin("../meshs/fond_marin.obj");
-
-    // const std::vector<glimac::ShapeVertex> vertices_sphere = glimac::cone_vertices(2.f, 1.f, 32, 16);
-
-    /*
-
-    const std::vector<glimac::ShapeVertex> vertices_cube = {
-        // Define cube vertices (positions only)
-        {glm::vec3(-0.5f, -0.5f, -0.5f)}, // Vertex 0
-        {glm::vec3(0.5f, -0.5f, -0.5f)},  // Vertex 1
-        {glm::vec3(0.5f, 0.5f, -0.5f)},   // Vertex 2
-        {glm::vec3(-0.5f, 0.5f, -0.5f)},  // Vertex 3
-        {glm::vec3(-0.5f, -0.5f, 0.5f)},  // Vertex 4
-        {glm::vec3(0.5f, -0.5f, 0.5f)},   // Vertex 5
-        {glm::vec3(0.5f, 0.5f, 0.5f)},    // Vertex 6
-        {glm::vec3(-0.5f, 0.5f, 0.5f)}    // Vertex 7
-    };
-
-    UniqueBuffer vbo; // Use UniqueBuffer to manage VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo.id());
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(glimac::ShapeVertex), vertices_sphere.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // Use UniqueBuffer to automatically handle deletion
-    UniqueBuffer vaoBuffer;
-    GLuint       vao = vaoBuffer.id();
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo.id());
-
-    static constexpr GLuint vertex_attr_position = 0;
-    glEnableVertexAttribArray(vertex_attr_position);
-    glVertexAttribPointer(vertex_attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, position)));
-
-    static constexpr GLuint vertex_attr_normal = 1;
-    glEnableVertexAttribArray(vertex_attr_normal);
-    glVertexAttribPointer(vertex_attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, normal)));
-
-    static constexpr GLuint vertex_attr_texCoords = 2;
-    glEnableVertexAttribArray(vertex_attr_texCoords);
-    glVertexAttribPointer(vertex_attr_texCoords, 2, GL_FLOAT, GL_FALSE, sizeof(glimac::ShapeVertex), (const GLvoid*)(offsetof(glimac::ShapeVertex, texCoords)));
-
-    // Unbind the VAO
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-
-    GLuint uMVPMatrixLocation    = glGetUniformLocation(shader.id(), "uMVPMatrix");
-    GLuint uMVMatrixLocation     = glGetUniformLocation(shader.id(), "uMVMatrix");
-    GLuint uNormalMatrixLocation = glGetUniformLocation(shader.id(), "uNormalMatrix");
-
-    */
 
     glEnable(GL_DEPTH_TEST);
 
     double deltaTime = 0.001;
-    // ImGui default values  vec3(0.0, 0.3725, 1.0)
+
     glm::vec4 background_color     = glm::vec4(0.0f, 0.3725f, 1.0f, 1.0f); // Default background color
     float     separationPerception = 0.0;
     float     scohesionPerception  = 0.0;
@@ -208,41 +137,26 @@ void Simulation::Render()
             camera2.moveFront(-0.01f);
         }
 
-        // Clear the screen
         glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Bind the VAO before rendering
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-
-        // shader.use();
-        // Utiliser le shaderrr
         Shader.use();
 
-        // glBindVertexArray(vao);
+        Shader.setColorFog(glm::vec3(0.0, 0.639, 1.0));
 
-        // Calculez la matrice de projection
         glm::mat4 ProjMatrix = glm::perspective(glm::radians(70.f), ctx.aspect_ratio(), 0.1f, 100.f);
-        // Calcul de la matrice de vue
+
         glm::mat4 viewMatrix = camera2.getViewMatrix();
 
         for (const auto& boid : flock)
         {
-            // boid->edges(this->ctx);
             boid->updatePosition(deltaTime);
             boid->flock(flock, this->ctx);
-            // boid->show(ctx);
             boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, fish2);
         }
 
         cube.Draw(Shader, ProjMatrix, viewMatrix);
         ocean.Draw(Shader, ProjMatrix, viewMatrix * glm::scale(glm::mat4{1.f}, glm::vec3(2.0f)));
-        // fond_marin.Draw(Shader, ProjMatrix, viewMatrix * glm::translate(glm::mat4{1.f}, glm::vec3(0.0f, -1.0f, 0.0f)));
-
-        // glDrawArrays(GL_TRIANGLES, 0, vertices_cube.size());
-
-        // glBindVertexArray(0);
     };
 
     ctx.start();

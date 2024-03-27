@@ -14,6 +14,7 @@ public:
         uMVMatrixLocation      = glGetUniformLocation(shader.id(), "uMVMatrix");
         uNormalMatrixLocation  = glGetUniformLocation(shader.id(), "uNormalMatrix");
         textureSamplerLocation = glGetUniformLocation(shader.id(), "textureSampler");
+        colorFog               = glGetUniformLocation(shader.id(), "colorFog");
     }
 
     ~ModelShader() {}
@@ -22,6 +23,7 @@ public:
     GLuint uMVMatrixLocation;
     GLuint uNormalMatrixLocation;
     GLuint textureSamplerLocation;
+    GLuint colorFog;
 
     // Méthode pour utiliser le shader
     void use() const
@@ -43,6 +45,11 @@ public:
     void setNormalMatrix(const glm::mat4& NormalMatrix) const
     {
         glUniformMatrix4fv(uNormalMatrixLocation, 1, GL_FALSE, glm::value_ptr(NormalMatrix));
+    }
+
+    void setColorFog(const glm::vec3& color) const
+    {
+        glUniform3fv(colorFog, 1, glm::value_ptr(color));
     }
 
 private:
