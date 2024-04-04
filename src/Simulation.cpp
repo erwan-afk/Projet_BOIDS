@@ -23,28 +23,6 @@
 Simulation::Simulation()
     : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx() {}
 
-void Simulation::setImguiFactorAlign(float value)
-{
-    for (Boid* boid : flock)
-    {
-        boid->setImguiFactorAlign(value);
-    }
-}
-void Simulation::setImguiFactorCohesion(float value)
-{
-    for (Boid* boid : flock)
-    {
-        boid->setImguiFactorCohesion(value);
-    }
-}
-void Simulation::setImguiFactorSeparation(float value)
-{
-    for (Boid* boid : flock)
-    {
-        boid->setImguiFactorSeparation(value);
-    }
-}
-
 void Simulation::Run()
 {
     // initalisation des boids
@@ -65,7 +43,7 @@ void Simulation::Run()
     for (int a = 0; a < 200; a++)
     {
         srand(static_cast<unsigned int>(time(nullptr)));
-        std::cout << uniforme(0.0, 1.0) << std::endl;
+        // std::cout << uniforme(0.0, 1.0) << std::endl;
     }
 
     Render();
@@ -81,8 +59,6 @@ void Simulation::Render()
     ModelMesh ocean("../meshs/ocean.obj");
 
     glEnable(GL_DEPTH_TEST);
-
-    double deltaTime = 0.001;
 
     TrackballCamera camera;
     FreeflyCamera   camera2;
@@ -138,7 +114,7 @@ void Simulation::Render()
 
         for (const auto& boid : flock)
         {
-            boid->updatePosition(ctx, Interface.getSpeedFactor());
+            boid->updatePosition(ctx);
             boid->flock(flock, this->ctx);
             boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, fish2);
         }
