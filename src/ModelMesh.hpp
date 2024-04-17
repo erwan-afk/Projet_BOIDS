@@ -153,7 +153,10 @@ private:
     glm::vec3                        scale;
 
 public:
+    float             speed_rotation = 0.0f;
+    float             rotationAngle  = 0.0f;
     void              Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix);
+    float             GetRotationMeshAngle();
     UniqueBuffer      vbo;
     UniqueVertexArray vao;
     Texture           texture;

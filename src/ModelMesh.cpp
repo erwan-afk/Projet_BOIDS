@@ -67,6 +67,20 @@ void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatr
     glBindVertexArray(0);
 }
 
+float ModelMesh::GetRotationMeshAngle()
+{
+    rotationAngle += speed_rotation;
+
+    // Si l'angle dépasse 360 degrés, le ramener à 0
+    if (rotationAngle >= 360.0f)
+    {
+        rotationAngle -= 360.0f;
+    }
+
+    speed_rotation = 0.0f;
+    return rotationAngle;
+}
+
 ModelMesh::~ModelMesh()
 {
 }
