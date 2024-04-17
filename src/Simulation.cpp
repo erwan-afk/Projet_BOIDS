@@ -133,7 +133,7 @@ void Simulation::Render()
     // Declare your infinite update loop.
     ctx.update = [&]() {
         Interface.userInteface(flock);
-        Interface.choisirCouleur();
+        // Interface.choisirCouleur();
 
         // Appliquer les mouvements de la caméra
         if (ctx.key_is_pressed(GLFW_KEY_W))
