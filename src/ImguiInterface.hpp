@@ -38,22 +38,30 @@ public:
     void userInteface(std::vector<Boid*>& flock)
     {
         ImGui::Begin("Option");
-
-        ImGui::SliderFloat("Boid Vision", &this->boidVision, 0.0, 0.2);
-
-        ImGui::SliderFloat("Align force", &this->alignForce, 0.0, 0.002);
-        ImGui::SliderFloat("Align bias", &this->alignBias, 0.001, 0.002);
-
-        ImGui::SliderFloat("Cohesion force", &this->cohesionForce, 0.0, 0.002);
-        ImGui::SliderFloat("Separation", &this->separationForce, 0.0, 0.002);
-
-        ImGui::SliderFloat("Min Speed", &this->minSpeed, 0.0, 4.0); // Ajoutez ce contrôle ImGui
-
+        ImGui::SliderFloat("Separation", &this->separationPerception, -40.0, 40.0);
+        ImGui::SliderFloat("Cohesion", &this->cohesionPerception, -40.0, 40.0);
+        ImGui::SliderFloat("Align", &this->alignPerception, -40.0, 40.0);
+        ImGui::SliderFloat("Speed", &this->speedFactor, 1.0, 100.0);
         ImGui::ColorPicker4("Background Color", (float*)&this->background_color);
 
         ImGui::End();
 
         setValue(flock, this->boidVision / (2.0f * 150.0f), this->separationForce / (2.0f * 4.0f), this->cohesionForce / (2.0f * 4.0f), this->alignForce / (2.0f * 4.0f), this->alignBias / (2.0f * 4.0f), this->minSpeed / (2.0f * 4.0f));
+    }
+
+    // Fonction pour choisir une couleur en fonction des probabilités
+    void choisirCouleur()
+    {
+        // Génération d'un nombre aléatoire entre 0 et 1
+        double randNum = (double)rand() / RAND_MAX;
+
+        // Déterminez la couleur en fonction des probabilités de transition
+        if (randNum < 0.4)
+            background_color = glm::vec3(1.0, 0.0, 0.0); // Rouge
+        else if (randNum < 0.7)
+            background_color = glm::vec3(0.0, 0.0, 1.0); // Bleu
+        else
+            background_color = glm::vec3(0.0, 1.0, 0.0); // Vert
     }
 
     ~ImguiInterface() {}

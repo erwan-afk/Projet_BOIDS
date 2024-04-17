@@ -12,6 +12,8 @@ uniform vec3 colorFog;
 void main() {
     // Sample texture using texture coordinates
     vec4 texColor = texture(textureSampler, fragTexCoords);
+    if(texColor.a < 0.1)
+        discard;
 
     // Apply depth effect
     float depthEffect = fragLinearDepth;

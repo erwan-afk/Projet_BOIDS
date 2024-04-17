@@ -1,10 +1,11 @@
 #include "Boid.hpp"
 #include <algorithm>
+#include <iostream>
 #include "glm/fwd.hpp"
 #include "glm/geometric.hpp"
 
-Boid::Boid(float initPosX, float initPosY, float initPosZ, float initVelocityX, float initVelocityY, float initVelocityZ)
-    : posX(initPosX), posY(initPosY), posZ(initPosZ), velocityX(initVelocityX), velocityY(initVelocityY), velocityZ(initVelocityZ) {}
+Boid::Boid(float initPosX, float initPosY, float initPosZ, float initTailAngle, float initVelocityX, float initVelocityY, float initVelocityZ)
+    : posX(initPosX), posY(initPosY), posZ(initPosZ), tailAngle(initTailAngle), velocityX(initVelocityX), velocityY(initVelocityY), velocityZ(initVelocityZ) {}
 
 float Boid::getPosX() const
 {
@@ -17,6 +18,11 @@ float Boid::getPosY() const
 float Boid::getPosZ() const
 {
     return this->posZ;
+}
+
+float Boid::getTailAngle() const
+{
+    return this->tailAngle;
 }
 
 float Boid::getVelocityX() const
@@ -41,7 +47,37 @@ void Boid::setImguiFactor(float boidVisionFact, float separationForceFact, float
     this->cohesionfact   = cohesionForceFact;
     this->separationfact = separationForceFact;
 
-    this->vision = boidVisionFact;
+    // Déclarer une variable pour la direction de l'oscillation
+
+    // Dans votre fonction updatePosition
+    // Calculer l'oscillation de la queue
+    float oscillationStep = 0.001f * speedFactor; // Pas d'oscillation
+    if (oscillationDirection)
+    {
+        tailAngle += oscillationStep; // Augmenter l'angle
+        if (tailAngle >= 0.2f)
+        {
+            oscillationDirection = false; // Changer de direction
+        }
+    }
+    else
+    {
+        tailAngle -= oscillationStep; // Diminuer l'angle
+        if (tailAngle <= -0.2f)
+        {
+            oscillationDirection = true; // Changer de direction
+        }
+    }
+
+    // std::cout << tailAngle << std::endl;
+
+    velocityX += accelerationX;
+    velocityY += accelerationY;
+    velocityZ += accelerationZ;
+
+    accelerationX = 0;
+    accelerationY = 0;
+    accelerationZ = 0;
 }
 
 void Boid::updatePosition(p6::Context& ctx)
@@ -151,7 +187,7 @@ void Boid::show(p6::Context& ctx) const
     ctx.equilateral_triangle(p6::Center{getPosX(), getPosY()}, p6::Radius{0.03f}, p6::Rotation{getDirection()});
 }
 
-void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2) const
+void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_tail) const
 {
     // Position de la sphère dans l'espace view
     glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
@@ -171,9 +207,10 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
     );
 
-    glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.015f)) * rotationMatrix;
+    glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.08f)) * rotationMatrix;
 
     fish2.Draw(Shader, ProjMatrix, MVMatrix);
+    fish2_tail.Draw(Shader, ProjMatrix, MVMatrix * glm::rotate(glm::mat4(1.0f), getTailAngle(), glm::vec3(1.0f, 0.0f, 0.0f)));
 }
 
 glm::vec3 Boid::align(const std::vector<Boid*>& Boids, const float opt_bias, const float opt_maxSpeed, const float opt_maxForce)

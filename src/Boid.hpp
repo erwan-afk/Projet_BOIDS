@@ -22,6 +22,9 @@ private:
     float posY;
     float posZ;
 
+    float tailAngle;
+    bool  oscillationDirection = true; // true pour une augmentation, false pour une diminution
+
     float velocityX;
     float velocityY;
     float velocityZ;
@@ -42,11 +45,13 @@ private:
 
 public:
     // Constructeur
-    Boid(float initPosX, float initPosY, float initPosZ, float initVelocityX, float initVelocityY, float initVelocityZ);
+    Boid(float initPosX, float initPosY, float initPosZ, float initTailAngle, float initVelocityX, float initVelocityY, float initVelocityZ);
     /*Getter*/
     float getPosX() const;
     float getPosY() const;
     float getPosZ() const;
+
+    float getTailAngle() const;
 
     float getVelocityX() const;
     float getVelocityY() const;
@@ -58,7 +63,7 @@ public:
     void updatePosition(p6::Context& ctx);
     void show(p6::Context& ctx) const;
 
-    void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2) const;
+    void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_tail) const;
 
     /*Physique*/
     void      flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
