@@ -33,11 +33,15 @@ private:
     float accelerationY = 0.0;
     float accelerationZ = 0.0;
 
-    float maxSpeed = 0.0;
+    float opt_maxSpeed = 4.0;
+    float opt_minSpeed;
 
-    float imguiFactorAlign;
-    float imguiFactorCohesion;
-    float imguiFactorSeparation;
+    float alignmentfact;
+    float biasfact;
+    float cohesionfact;
+    float separationfact;
+    float maxForce;
+    float vision;
 
 public:
     // Constructeur
@@ -53,22 +57,19 @@ public:
     float getVelocityY() const;
     float getVelocityZ() const;
 
-    void setImguiFactorAlign(float value);
-    void setImguiFactorCohesion(float value);
-    void setImguiFactorSeparation(float value);
+    void setImguiFactor(float boidVisionFact, float separationForceFact, float cohesionForceFact, float alignForceFact, float alignBiasFact, float minSpeedFact);
 
     /*Update et affichage*/
-    void updatePosition(p6::Context& ctx, float speedFactor);
-    void edges(p6::Context& ctx);
+    void updatePosition(p6::Context& ctx);
     void show(p6::Context& ctx) const;
 
     void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_tail) const;
 
     /*Physique*/
     void      flock(std::vector<Boid*> const& Boids, p6::Context& ctx);
-    glm::vec3 align(std::vector<Boid*> const& Boids);
-    glm::vec3 cohesion(std::vector<Boid*> const& Boids);
-    glm::vec3 separation(std::vector<Boid*> const& Boids);
+    glm::vec3 align(const std::vector<Boid*>& Boids, const float opt_bias, const float opt_maxSpeed, const float opt_maxForce);
+    glm::vec3 cohesion(const std::vector<Boid*>& Boids, const float opt_maxSpeed, const float opt_maxForce);
+    glm::vec3 separation(const std::vector<Boid*>& Boids, const float opt_maxSpeed, const float opt_maxForce);
     glm::vec3 separationEdges(std::vector<Boid*> const& Boids, p6::Context& ctx);
 
     /*Fonction qui ne servent pas pour l'instant*/
