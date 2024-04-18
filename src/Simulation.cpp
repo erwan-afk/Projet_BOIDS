@@ -4,8 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 #include <vector>
 /**/
+#include <chrono>
 #include "Boid.hpp"
 #include "GLFW/glfw3.h"
 #include "Hitbox.hpp"
@@ -13,7 +15,6 @@
 #include "ModelMesh.hpp"
 #include "Rules.hpp"
 #include "Simulation.hpp"
-#include "TrackballCamera.hpp"
 #include "glimac/cone_vertices.hpp"
 #include "glimac/sphere_vertices.hpp"
 #include "glm/ext/matrix_transform.hpp"
@@ -25,6 +26,28 @@
 // Définition du constructeur
 Simulation::Simulation()
     : name("Projet Boids"), window_width(this->window_width), window_height(this->window_height), ctx() {}
+
+void Simulation::setImguiFactorAlign(float value)
+{
+    for (Boid* boid : flock)
+    {
+        boid->setImguiFactorAlign(value);
+    }
+}
+void Simulation::setImguiFactorCohesion(float value)
+{
+    for (Boid* boid : flock)
+    {
+        boid->setImguiFactorCohesion(value);
+    }
+}
+void Simulation::setImguiFactorSeparation(float value)
+{
+    for (Boid* boid : flock)
+    {
+        boid->setImguiFactorSeparation(value);
+    }
+}
 
 void Simulation::Run()
 {
@@ -75,7 +98,7 @@ void Simulation::Run()
     for (int a = 0; a < 1; a++)
     {
         srand(static_cast<unsigned int>(time(nullptr)));
-        // std::cout << uniforme(0.0, 1.0) << std::endl;
+        std::cout << uniforme(0.0, 1.0) << std::endl;
     }
     */
     Render();
@@ -106,6 +129,8 @@ void Simulation::Render()
 
     glEnable(GL_DEPTH_TEST);
 
+    double deltaTime = 0.001;
+
     TrackballCamera camera;
     FreeflyCamera   camera2;
     Arpenteur       sousmarin(camera2.getPosition(), camera2.getTheta());
@@ -128,10 +153,31 @@ void Simulation::Render()
         // camera2.moveFront(-e.dy);
     };
 
+    // Initialiser le temps de la dernière impression au début du jeu
+    auto lastPrintTime = std::chrono::steady_clock::now();
+
     srand(time(NULL));
 
     // Declare your infinite update loop.
     ctx.update = [&]() {
+        // Mesurer le temps écoulé depuis la dernière trame
+        std::chrono::steady_clock::time_point frameStart = std::chrono::steady_clock::now();
+
+        // Vérifier si plus de 5 secondes se sont écoulées depuis la dernière fois que totalTimeElapsed a été affiché
+        auto                         currentTime           = std::chrono::steady_clock::now();
+        std::chrono::duration<float> elapsedSinceLastPrint = currentTime - lastPrintTime;
+
+        // Calculez t en normalisant le temps écoulé par rapport à la durée de transition
+        t = std::min(1.0f, elapsedSinceLastPrint.count() / animation_daytime_duration);
+        std::cout << t << std::endl;
+        // Appelez la fonction smoothTransition avec la valeur de t pour mettre à jour la couleur actuelle
+        Interface.smoothTransition(t);
+        if (elapsedSinceLastPrint.count() >= animation_daytime_duration)
+        {
+            Interface.choisirCouleur();
+            lastPrintTime = currentTime; // Mettre à jour le temps de la dernière impression
+        }
+
         Interface.userInteface(flock);
         // Interface.choisirCouleur();
 
@@ -170,9 +216,9 @@ void Simulation::Render()
 
         for (const auto& boid : flock)
         {
-            boid->updatePosition(ctx);
+            boid->updatePosition(ctx, Interface.getSpeedFactor());
             boid->flock(flock, this->ctx);
-            boid->showOpenGL(this->ctx, Shader, ProjMatrix, viewMatrix, fish2, fish2_tail);
+            boid->showOpenGL(ctx, Shader, ProjMatrix, viewMatrix, fish2, fish2_tail, camera2);
         }
 
         cube.Draw(Shader, ProjMatrix, viewMatrix);
@@ -199,6 +245,13 @@ void Simulation::Render()
         // Dessiner l'arpenteur
         arpenteur.Draw(Shader, ProjMatrix, glm::translate(glm::mat4{1.f}, glm::vec3{0.0f, -0.03f, -0.2f}) * glm::scale(glm::mat4{1.f}, glm::vec3{0.02}) * glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f)));
         arpenteur_elice.Draw(Shader, ProjMatrix, glm::translate(glm::mat4{1.f}, glm::vec3{0.0f, -0.03f, -0.2f}) * glm::scale(glm::mat4{1.f}, glm::vec3{0.02}) * glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(arpenteur_elice.GetRotationMeshAngle()), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+        // Calculer le temps écoulé depuis le début de la trame
+        std::chrono::steady_clock::time_point frameEnd      = std::chrono::steady_clock::now();
+        std::chrono::duration<float>          frameDuration = std::chrono::duration_cast<std::chrono::duration<float>>(frameEnd - frameStart);
+
+        // Mettre à jour le temps total écoulé dans le jeu
+        totalTimeElapsed += frameDuration.count();
     };
 
     ctx.start();

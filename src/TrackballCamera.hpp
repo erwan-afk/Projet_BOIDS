@@ -66,7 +66,7 @@ public:
     }
 
     // Get position
-    glm::vec3 getPosition() const { return glm::vec3(m_Position.x, m_Position.y - 0.2f, m_Position.z + 0.5f); }
+    glm::vec3 getPosition() const { return glm::vec3(m_Position.x, m_Position.y, m_Position.z); }
 
     float getPhi()
     {

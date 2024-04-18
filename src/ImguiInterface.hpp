@@ -8,30 +8,83 @@
 class ImguiInterface {
 private:
     glm::vec3 background_color;
-    float     boidVision;
-    float     separationForce;
-    float     cohesionForce;
-    float     alignForce;
-    float     alignBias;
-    float     minSpeed;
+    glm::vec3 targetColor;
+    float     separationPerception;
+    float     cohesionPerception;
+    float     alignPerception;
+    float     speedFactor;
 
 public:
-    ImguiInterface(const glm::vec3& background_color = glm::vec3(0.0, 0.639, 1.0), // Default background color
-                   float boidVision = 0.01f, float separationForce = 1.1f, float cohesionForce = 1.0f, float alignForce = 1.1f, float alignBias = 1.5f, float minSpeed = 1.0f)
-        : background_color(background_color), boidVision(boidVision), separationForce(separationForce), cohesionForce(cohesionForce), alignForce(alignForce), alignBias(alignBias), minSpeed(minSpeed)
+    ImguiInterface(const glm::vec3& background_color = glm::vec3(0.0, 0.639, 1.0), const glm::vec3& targetColor = glm::vec3(0.447, 0.364, 0.0), // Default background color
+                   float separationPerception = 0.0f, float cohesionPerception = 0.0f, float alignPerception = 0.0f, float speedfactor = 1.0)
+        : background_color(background_color), targetColor(targetColor), separationPerception(separationPerception), cohesionPerception(cohesionPerception), alignPerception(alignPerception), speedFactor(speedfactor)
     {
+    }
+
+    void setBackground_color(const glm::vec4& new_color)
+    {
+        this->background_color = new_color;
+    }
+
+    void setSeparationPerception(float new_value)
+    {
+        this->separationPerception = new_value;
+    }
+
+    void setCohesionPerception(float new_value)
+    {
+        this->cohesionPerception = new_value;
+    }
+
+    void setAlignPerception(float new_value)
+    {
+        this->alignPerception = new_value;
     }
 
     glm::vec3 getBackground_color() const
     {
-        return background_color;
+        return this->background_color;
     }
 
-    void setValue(std::vector<Boid*>& flock, float boidVisionFact, float separationForceFact, float cohesionForceFact, float alignForceFact, float alignBiasFact, float minSpeedFact)
+    float getSeparationPerception() const
+    {
+        return this->separationPerception;
+    }
+
+    float getCohesionPerception() const
+    {
+        return this->cohesionPerception;
+    }
+
+    float getAlignPerception() const
+    {
+        return this->alignPerception;
+    }
+
+    float getSpeedFactor() const
+    {
+        return this->speedFactor;
+    }
+
+    void setImguiFactorAlign(float value, std::vector<Boid*>& flock)
     {
         for (Boid* boid : flock)
         {
-            boid->setImguiFactor(boidVisionFact, separationForceFact, cohesionForceFact, alignForceFact, alignBiasFact, minSpeedFact);
+            boid->setImguiFactorAlign(value);
+        }
+    }
+    void setImguiFactorCohesion(float value, std::vector<Boid*>& flock)
+    {
+        for (Boid* boid : flock)
+        {
+            boid->setImguiFactorCohesion(value);
+        }
+    }
+    void setImguiFactorSeparation(float value, std::vector<Boid*>& flock)
+    {
+        for (Boid* boid : flock)
+        {
+            boid->setImguiFactorSeparation(value);
         }
     }
 
@@ -42,11 +95,13 @@ public:
         ImGui::SliderFloat("Cohesion", &this->cohesionPerception, -40.0, 40.0);
         ImGui::SliderFloat("Align", &this->alignPerception, -40.0, 40.0);
         ImGui::SliderFloat("Speed", &this->speedFactor, 1.0, 100.0);
-        ImGui::ColorPicker4("Background Color", (float*)&this->background_color);
-
+        // ImGui::ColorPicker4("Background Color", (float*)&this->background_color);
         ImGui::End();
 
-        setValue(flock, this->boidVision / (2.0f * 150.0f), this->separationForce / (2.0f * 4.0f), this->cohesionForce / (2.0f * 4.0f), this->alignForce / (2.0f * 4.0f), this->alignBias / (2.0f * 4.0f), this->minSpeed / (2.0f * 4.0f));
+        // set ImGui Options
+        setImguiFactorSeparation(this->separationPerception * 0.02, flock);
+        setImguiFactorCohesion(this->cohesionPerception * 0.0005, flock);
+        setImguiFactorAlign(this->alignPerception * 0.35, flock);
     }
 
     // Fonction pour choisir une couleur en fonction des probabilités
@@ -56,12 +111,21 @@ public:
         double randNum = (double)rand() / RAND_MAX;
 
         // Déterminez la couleur en fonction des probabilités de transition
-        if (randNum < 0.4)
-            background_color = glm::vec3(1.0, 0.0, 0.0); // Rouge
-        else if (randNum < 0.7)
-            background_color = glm::vec3(0.0, 0.0, 1.0); // Bleu
+        if (randNum < 0.2)
+            targetColor = glm::vec3(0.0, 0.639, 1.0); // Rouge
+        else if (randNum < 0.4)
+            targetColor = glm::vec3(0.447, 0.364, 0.0); // Bleu
+        else if (randNum < 0.6)
+            targetColor = glm::vec3(0.274, 0.0, 0.423); // Bleu
         else
-            background_color = glm::vec3(0.0, 1.0, 0.0); // Vert
+            targetColor = glm::vec3(0.0, 0.0, 0.423); // Vert
+    }
+
+    // Fonction pour réaliser une transition fluide entre la couleur actuelle et la couleur cible
+    void smoothTransition(float t)
+    {
+        background_color = glm::mix(background_color, targetColor, t);
+        std::cout << "x:" << background_color.x << "y:" << background_color.y << "z:" << background_color.z << std::endl;
     }
 
     ~ImguiInterface() {}
