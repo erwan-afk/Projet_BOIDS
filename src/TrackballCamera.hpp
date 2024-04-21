@@ -9,11 +9,10 @@
 class FreeflyCamera {
 public:
     glm::vec3 m_Position;
+    float     m_Phi;
+    float     m_Theta;
 
 private:
-    float m_Phi;
-    float m_Theta;
-
     glm::vec3 m_FrontVector;
     glm::vec3 m_LeftVector;
     glm::vec3 m_UpVector;
@@ -31,16 +30,47 @@ private:
 public:
     // Constructor
     FreeflyCamera()
-        : m_Position(0.0f), m_Phi(glm::pi<float>()), m_Theta(glm::pi<float>()), m_FrontVector(0.0f, 0.0f, -1.0f), m_LeftVector(-1.0f, 0.0f, 0.0f), m_UpVector(0.0f, 1.0f, 0.0f)
+        : m_Position(glm::vec3(0.93, -0.76, 0.94)), m_Phi(glm::pi<float>()), m_Theta(glm::pi<float>() - 1.4f), m_FrontVector(0.0f, 0.0f, -1.0f), m_LeftVector(-1.0f, 0.0f, 0.0f), m_UpVector(0.0f, 1.0f, 0.0f)
     {
         computeDirectionVectors();
     }
 
     // Move along left vector
-    void moveLeft(float t) { m_Position += t * m_LeftVector; }
+    void moveLeft(float t)
+    {
+        glm::vec3 newPosition = m_Position + t * m_LeftVector;
+
+        // Vérifier chaque composante de la nouvelle position
+        if (newPosition.x >= -1.0f && newPosition.x <= 1.0f && newPosition.y >= -1.0f && newPosition.y <= 1.0f && newPosition.z >= -1.0f && newPosition.z <= 1.0f)
+        {
+            // Si toutes les composantes sont dans la plage [-1.0, 1.0], mettre à jour la position
+            m_Position = newPosition;
+        }
+    }
 
     // Move along front vector
-    void moveFront(float t) { m_Position += t * m_FrontVector; }
+    void moveFront(float t)
+    {
+        glm::vec3 newPosition = m_Position + t * m_FrontVector;
+
+        // Vérifier chaque composante de la nouvelle position
+        if (newPosition.x >= -1.0f && newPosition.x <= 1.0f && newPosition.y >= -1.0f && newPosition.y <= 1.0f && newPosition.z >= -1.0f && newPosition.z <= 1.0f)
+        {
+            // Si aucune composante ne dépasse 1.0, mettre à jour la position
+            m_Position = newPosition;
+        }
+    }
+    void moveUp(float t)
+    {
+        glm::vec3 newPosition = m_Position + t * m_UpVector;
+
+        // Vérifier chaque composante de la nouvelle position
+        if (newPosition.x >= -1.0f && newPosition.x <= 1.0f && newPosition.y >= -1.0f && newPosition.y <= 1.0f && newPosition.z >= -1.0f && newPosition.z <= 1.0f)
+        {
+            // Si toutes les composantes sont dans la plage [-1.0, 1.0], mettre à jour la position
+            m_Position = newPosition;
+        }
+    }
 
     // Rotate left
     void rotateLeft(float degrees)

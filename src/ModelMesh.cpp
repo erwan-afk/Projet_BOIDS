@@ -46,9 +46,11 @@ ModelMesh::ModelMesh(const char* filePath)
 
 void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix)
 {
-    glBindVertexArray(vao.id());
+    // Intensité de la lumière
 
-    // Envoyer les matrices aux uniformes
+    glBindVertexArray(vao.id());
+    // Shader.setLightProperties(glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(1.0, 1.0, 1.0), 0.4f);
+    //  Envoyer les matrices aux uniformes
     Shader.setMVPMatrix(ProjMatrix, MVMatrix);
     Shader.setMVMatrix(MVMatrix);
     // Calculer la matrice NormalMatrix

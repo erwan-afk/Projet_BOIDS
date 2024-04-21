@@ -1,22 +1,34 @@
 #pragma once
 
 #include <p6/p6.h>
+#include <cstddef>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include "Probability.hpp"
 #include "Simulation.hpp"
 
 class ImguiInterface {
 private:
     glm::vec3 background_color;
     glm::vec3 targetColor;
-    float     separationPerception;
-    float     cohesionPerception;
-    float     alignPerception;
-    float     speedFactor;
+    // std::vector<int> states = {0, 1, 2, 3};
+    float separationPerception;
+    float cohesionPerception;
+    float alignPerception;
+    float speedFactor;
+
+    glm::mat4 matriceTransition{
+        {3.0f / 8.0f, 3.0f / 8.0f, 1.0f / 8.0f, 1.0f / 8.0f},
+        {3.0f / 12.0f, 4.0f / 12.0f, 2.0f / 12.0f, 2.0f / 12.0f},
+        {1.0f / 7.0f, 1.0f / 7.0f, 3.0f / 7.0f, 2.0f / 7.0f},
+        {1.0f / 8.0f, 1.0f / 8.0f, 3.0f / 8.0f, 3.0f / 8.0f}
+    };
 
 public:
+    int currentState = 0;
     ImguiInterface(const glm::vec3& background_color = glm::vec3(0.0, 0.639, 1.0), const glm::vec3& targetColor = glm::vec3(0.447, 0.364, 0.0), // Default background color
-                   float separationPerception = 0.0f, float cohesionPerception = 0.0f, float alignPerception = 0.0f, float speedfactor = 1.0)
+                   float separationPerception = 0.0f, float cohesionPerception = 0.0f, float alignPerception = 0.0f, float speedfactor = 80.0)
         : background_color(background_color), targetColor(targetColor), separationPerception(separationPerception), cohesionPerception(cohesionPerception), alignPerception(alignPerception), speedFactor(speedfactor)
     {
     }
@@ -121,11 +133,57 @@ public:
             targetColor = glm::vec3(0.0, 0.0, 0.423); // Vert
     }
 
+    void markov_setp2(glm::vec3 m)
+    {
+        float a = random1();
+        if (a < m[0])
+        {
+            currentState = 0;
+
+            targetColor = glm::vec3(0.0, 0.0, 0.423);
+        }
+        else if (a < m[0] + m[1])
+        {
+            currentState = 1;
+            targetColor  = glm::vec3(0.274, 0.0, 0.423);
+        }
+        else if (a < m[0] + m[1] + m[2])
+        {
+            currentState = 2;
+            targetColor  = glm::vec3(0.447, 0.364, 0.0);
+        }
+        else
+        {
+            currentState = 3;
+            targetColor  = glm::vec3(0.0, 0.639, 1.0); // Rouge
+        }
+    }
+
+    void markov_setp1(int current_state)
+    {
+        switch (current_state)
+        {
+        case 0:
+            markov_setp2(matriceTransition[0]);
+            break;
+        case 1:
+            markov_setp2(matriceTransition[1]);
+            break;
+        case 2:
+            markov_setp2(matriceTransition[2]);
+            break;
+
+        case 3:
+            markov_setp2(matriceTransition[3]);
+            break;
+        }
+    }
+
     // Fonction pour réaliser une transition fluide entre la couleur actuelle et la couleur cible
     void smoothTransition(float t)
     {
         background_color = glm::mix(background_color, targetColor, t);
-        std::cout << "x:" << background_color.x << "y:" << background_color.y << "z:" << background_color.z << std::endl;
+        // std::cout << "x:" << background_color.x << "y:" << background_color.y << "z:" << background_color.z << std::endl;
     }
 
     ~ImguiInterface() {}

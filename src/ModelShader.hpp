@@ -15,6 +15,11 @@ public:
         uNormalMatrixLocation  = glGetUniformLocation(shader.id(), "uNormalMatrix");
         textureSamplerLocation = glGetUniformLocation(shader.id(), "textureSampler");
         colorFog               = glGetUniformLocation(shader.id(), "colorFog");
+
+        // Obtenir les emplacements des uniformes pour la lumière
+        ulightPositionLocation  = glGetUniformLocation(shader.id(), "lightPosition");
+        uLightColorLocation     = glGetUniformLocation(shader.id(), "lightColor");
+        uLightIntensityLocation = glGetUniformLocation(shader.id(), "lightIntensity");
     }
 
     ~ModelShader() {}
@@ -24,6 +29,10 @@ public:
     GLuint uNormalMatrixLocation;
     GLuint textureSamplerLocation;
     GLuint colorFog;
+
+    GLuint ulightPositionLocation;
+    GLuint uLightColorLocation;
+    GLuint uLightIntensityLocation;
 
     // Méthode pour utiliser le shader
     void use() const
@@ -50,6 +59,14 @@ public:
     void setColorFog(const glm::vec3& color) const
     {
         glUniform3fv(colorFog, 1, glm::value_ptr(color));
+    }
+
+    // Méthode pour envoyer les propriétés de la lumière aux uniforms
+    void setLightProperties(const glm::vec3& position, const glm::vec3& color, float intensity) const
+    {
+        glUniform3fv(ulightPositionLocation, 1, glm::value_ptr(position));
+        glUniform3fv(uLightColorLocation, 1, glm::value_ptr(color));
+        glUniform1f(uLightIntensityLocation, intensity);
     }
 
 private:

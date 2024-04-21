@@ -8,6 +8,7 @@ uniform mat4 uMVPMatrix;
 uniform mat4 uMVMatrix;
 uniform mat4 uNormalMatrix;
 
+out vec3 fragPosition;
 out vec3 fragNormal;
 out vec2 fragTexCoords;
 out float fragLinearDepth;
@@ -26,6 +27,7 @@ float logisticDepth(float depth, float steepness, float offset) {
 
 void main() {
     gl_Position = uMVPMatrix * vec4(inPosition, 1.0);
+    fragPosition = (uMVMatrix * vec4(inPosition, 1.0)).xyz;
     fragNormal = (uNormalMatrix * vec4(inNormal, 1)).xyz;
     fragTexCoords = inTexCoords;
 
