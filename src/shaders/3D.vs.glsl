@@ -32,6 +32,6 @@ void main() {
     fragTexCoords = inTexCoords;
 
     // Output linearized depth value
-    float depth = logisticDepth(gl_Position.z / gl_Position.w, 3.0, 1.0);
+    float depth = logisticDepth(gl_Position.z / gl_Position.w, 4.0, 1.0);
     fragLinearDepth = depth;
 }

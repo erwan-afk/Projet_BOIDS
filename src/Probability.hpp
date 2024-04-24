@@ -132,10 +132,18 @@ float gamma(float x)
 
 float loi_beta(float alpha, float beta)
 {
-    const float random       = random1();
-    const float numerateur   = std::pow(random, alpha - 1) * std::pow(1 - random, beta - 1);
-    const float denominateur = (std::tgamma(alpha) * std::tgamma(beta)) / gamma(alpha + beta);
-    return (numerateur / denominateur);
+    float x, y;
+    do
+    {
+        float u = random1();
+        float v = random1();
+
+        x = std::pow(u, 1.0f / alpha);
+        y = std::pow(v, 1.0f / beta);
+    } while (x + y > 1.0f);
+
+    float result = (2.0f * x / (x + y)) - 1.0f;
+    return result;
 }
 //--
 

@@ -40,6 +40,8 @@ private:
     float imguiFactorCohesion;
     float imguiFactorSeparation;
 
+    float imguiQualityBoids;
+
 public:
     // Constructeur
     Boid(float initPosX, float initPosY, float initPosZ, float initTailAngle, float initVelocityX, float initVelocityY, float initVelocityZ);
@@ -57,6 +59,7 @@ public:
     void setImguiFactorAlign(float value);
     void setImguiFactorCohesion(float value);
     void setImguiFactorSeparation(float value);
+    void setImguiQualityBoids(bool value);
 
     /*Update et affichage*/
     void updatePosition(p6::Context& ctx, float speedFactor);
@@ -66,7 +69,7 @@ public:
     float distanceCamera(const glm::vec3& v1, const glm::vec3& v2) const;
     bool  CloseEnough(const glm::vec3& v1, const glm::vec3& v2, float threshold) const;
 
-    void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_tail, FreeflyCamera& camera2) const;
+    void showOpenGL(p6::Context& ctx, ModelShader& modelShader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_low, ModelMesh& fish2_tail, FreeflyCamera& camera2) const;
 
     /*Physique*/
     void      flock(std::vector<Boid*> const& Boids, p6::Context& ctx);

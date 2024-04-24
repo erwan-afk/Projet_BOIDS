@@ -10,10 +10,17 @@ out vec4 fragColor;         // Couleur finale du fragment
 uniform sampler2D textureSampler;  // Échantillonneur de texture
 uniform vec3 colorFog;              // Couleur du brouillard
 
-uniform vec3 lightPosition;         // Position de la lumière
-uniform vec3 lightColor;            // Couleur de la lumière
-uniform float lightIntensity;       // Intensité de la lumière
-uniform float lightAttenuation;     // Atténuation de la lumière
+// Structure pour une lumière
+struct Light {
+    vec3 position;
+    vec3 color;
+    float intensity;
+    float radius;
+};
+
+// Uniforms pour les lumières
+uniform int uNumLights;
+uniform Light uLights[2];
 
 void main() {
     // Échantillonnage de la texture en utilisant les coordonnées de texture
@@ -21,24 +28,38 @@ void main() {
     if(texColor.a < 0.1)
         discard;
 
-    // Calcul de la direction de la lumière
-    vec3 lightDirection = normalize(lightPosition - fragPosition);
+    // Initialisation de la couleur finale
+    vec3 finalColor = vec3(0.0);
 
-    // Calcul de la distance entre le fragment et la lumière
-    float distance = length(lightPosition - fragPosition);
+    // Loop à travers les lumières
+    for(int i = 0; i < uNumLights; ++i) {
+        // Extraction des données de la lumière actuelle
+        vec3 lightColor = uLights[i].color;
+        float lightIntensity = uLights[i].intensity;
 
-    // Calcul de l'atténuation de la lumière
-    float attenuation = 1.0 / (1.0 + lightAttenuation * pow(distance, 2));
+        // Calcul du vecteur de la lumière au fragment
+        vec3 lightDirection = normalize(uLights[i].position - fragPosition);
+        float distanceToLight = length(uLights[i].position - fragPosition);
 
-    // Calcul de l'éclairage diffus
-    float diff = max(dot(normalize(fragNormal), normalize(lightDirection)), 0.0);
-    vec3 diffuse = lightColor * lightIntensity * diff * attenuation;
+        // Si la distance au fragment est supérieure au rayon de la sphère de lumière, l'atténuation est 0
+        float attenuation = 0.0;
+        if(distanceToLight <= uLights[i].radius) {
+    // Calcul de l'atténuation de la lumière basée sur la loi de l'inverse du carré de la distance
+            attenuation = 1.0 - (distanceToLight / uLights[i].radius); // Vous pouvez ajuster cette formule selon vos besoins
+        }
+
+        float diff = max(dot(normalize(fragNormal), lightDirection), 0.0);
+        vec3 diffuse = lightColor * lightIntensity * diff * attenuation;
+
+        // Ajout de l'éclairage diffus à la couleur finale
+        finalColor += diffuse;
+    }
 
     // Application de l'effet de profondeur
     float depthEffect = fragLinearDepth;
 
-    // Combinaison de la couleur de la texture avec l'effet de profondeur et l'éclairage diffus
-    vec3 finalColor = texColor.rgb * (1.0 - depthEffect) + depthEffect * colorFog + diffuse;
+    // Combinaison de la couleur de la texture avec l'effet de profondeur, l'éclairage diffus et le brouillard
+    finalColor = (texColor.rgb * finalColor) * (1.0 - depthEffect) + depthEffect * colorFog;
 
     // Sortie de la couleur finale
     fragColor = vec4(finalColor, 1.0);

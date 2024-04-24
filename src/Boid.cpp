@@ -51,6 +51,11 @@ void Boid::setImguiFactorSeparation(float value)
     this->imguiFactorSeparation = value;
 }
 
+void Boid::setImguiQualityBoids(bool value)
+{
+    this->imguiQualityBoids = value;
+}
+
 void Boid::updatePosition(p6::Context& ctx, float speedFactor)
 {
     posX += (velocityX * ctx.delta_time()) * speedFactor;
@@ -129,14 +134,13 @@ glm::vec3 Boid::getDirection() const
 
 void Boid::flock(std::vector<Boid*> const& Boids, p6::Context& ctx)
 {
-    const float alignmentFactor = 0.005; // Ajustez cette valeur selon vos besoins
-    const float minSpeed        = 0.002; // Ajustez cette valeur selon vos besoins
+    const float minSpeed = 0.002; // Ajustez cette valeur selon vos besoins
 
-    /* cohesion factor */
-    const float cohesionFactor = 0.0005; // Ajustez cette valeur selon vos besoins
-    //* this->imguiFactor
+    const float alignmentFactor = 0.1; // Ajustez cette valeur selon vos besoins
 
-    const float separationsFactor = 0.0001; // Ajustez cette valeur selon vos besoins
+    const float cohesionFactor = 0.001; // Ajustez cette valeur selon vos besoins
+
+    const float separationsFactor = 0.0002; // Ajustez cette valeur selon vos besoins
 
     const float separationsEdgesFactor = 0.000001; // Ajustez cette valeur selon vos besoins
 
@@ -188,7 +192,7 @@ bool Boid::CloseEnough(const glm::vec3& v1, const glm::vec3& v2, float threshold
     return distanceCamera(v1, v2) <= threshold * threshold;
 }
 
-void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_tail, FreeflyCamera& camera2) const
+void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 viewMatrix, ModelMesh& fish2, ModelMesh& fish2_low, ModelMesh& fish2_tail, FreeflyCamera& camera2) const
 {
     // Position de la sphère dans l'espace view
     glm::vec3 spherePosition = glm::vec3(getPosX(), getPosY(), getPosZ());
@@ -213,14 +217,22 @@ void Boid::showOpenGL(p6::Context& ctx, ModelShader& Shader, glm::mat4 ProjMatri
 
         glm::mat4 MVMatrix = viewMatrix * glm::translate(glm::mat4{1.f}, spherePosition) * glm::scale(glm::mat4{1.f}, glm::vec3(0.08f)) * rotationMatrix;
 
-        fish2.Draw(Shader, ProjMatrix, MVMatrix);
-        fish2_tail.Draw(Shader, ProjMatrix, MVMatrix * glm::rotate(glm::mat4(1.0f), getTailAngle(), glm::vec3(1.0f, 0.0f, 0.0f)));
+        if (CloseEnough(spherePosition, CameraPosition, 1.0f) && imguiQualityBoids)
+        {
+            fish2.Draw(Shader, ProjMatrix, MVMatrix, viewMatrix);
+            fish2_tail.Draw(Shader, ProjMatrix, MVMatrix * glm::rotate(glm::mat4(1.0f), getTailAngle(), glm::vec3(1.0f, 0.0f, 0.0f)), viewMatrix);
+        }
+        else
+        {
+            fish2_low.Draw(Shader, ProjMatrix, MVMatrix, viewMatrix);
+            fish2_tail.Draw(Shader, ProjMatrix, MVMatrix * glm::rotate(glm::mat4(1.0f), getTailAngle(), glm::vec3(1.0f, 0.0f, 0.0f)), viewMatrix);
+        }
     }
 }
 
 glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.35f + this->imguiFactorAlign;
+    float perception = this->imguiFactorAlign;
     float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
@@ -254,7 +266,7 @@ glm::vec3 Boid::align(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.0005f + this->imguiFactorCohesion;
+    float perception = this->imguiFactorCohesion;
     float total      = 0;
 
     glm::vec3 avgPosition(0.0f);
@@ -292,9 +304,8 @@ glm::vec3 Boid::cohesion(const std::vector<Boid*>& Boids)
 
 glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
 {
-    float perception = 0.02f + this->imguiFactorSeparation;
-    // float perception = 0.0001f;
-    float total = 0;
+    float perception = this->imguiFactorSeparation;
+    float total      = 0;
 
     glm::vec3 avgVelocity(0.0f);
 
@@ -309,7 +320,7 @@ glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
         {
             // Ajouter les composantes normalisées de la vélocité à avgVelocity
             glm::vec3 normalizedDelta = glm::normalize(delta);
-            avgVelocity += normalizedDelta;
+            avgVelocity -= normalizedDelta; // Inverser le vecteur de direction
             total++;
         }
     }
@@ -319,8 +330,8 @@ glm::vec3 Boid::separation(const std::vector<Boid*>& Boids)
         // Calculer la moyenne des composantes de vélocité
         avgVelocity /= static_cast<float>(total);
 
-        // Soustraire la vélocité actuelle du boid
-        avgVelocity -= glm::vec3(velocityX, velocityY, velocityZ);
+        // Ajouter la vélocité actuelle du boid
+        avgVelocity += glm::vec3(velocityX, velocityY, velocityZ);
     }
 
     return avgVelocity;

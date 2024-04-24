@@ -5,7 +5,9 @@
 #include <sstream>
 #include <vector>
 #include "ModelShader.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
+#include "glm/trigonometric.hpp"
 
 ModelMesh::ModelMesh(const char* filePath)
 {
@@ -44,13 +46,22 @@ ModelMesh::ModelMesh(const char* filePath)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix)
+void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatrix, glm::mat4 ViewMatrix)
 {
-    // Intensité de la lumière
-
     glBindVertexArray(vao.id());
-    // Shader.setLightProperties(glm::vec3(0.0f, 0.8f, 0.0f), glm::vec3(1.0, 1.0, 1.0), 0.4f);
-    //  Envoyer les matrices aux uniformes
+    // Envoyer les lumières au shader
+    // Positionner les lumières avec la ViewMatrix
+
+    // Positionner la lumière avec la ViewMatrix et la translation
+    glm::mat4 lightPositionMatrix = ViewMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.4f, 0.0f));
+    Shader.setLightPosition(0, lightPositionMatrix);
+
+    glm::mat4 lightPositionMatrix1 = Shader.lights[1].position;
+    Shader.setLightPosition(1, lightPositionMatrix1);
+
+    Shader.enableLights();
+
+    // Envoyer les matrices aux uniformes
     Shader.setMVPMatrix(ProjMatrix, MVMatrix);
     Shader.setMVMatrix(MVMatrix);
     // Calculer la matrice NormalMatrix
@@ -58,14 +69,10 @@ void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatr
     Shader.setNormalMatrix(NormalMatrix);
 
     glBindTexture(GL_TEXTURE_2D, texture.id());
-    // Draw the triangle
-
     // Dessiner les triangles
     glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
-    // Draw the triangle
     glBindTexture(GL_TEXTURE_2D, 0);
-
     glBindVertexArray(0);
 }
 

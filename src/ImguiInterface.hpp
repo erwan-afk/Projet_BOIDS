@@ -17,6 +17,8 @@ private:
     float cohesionPerception;
     float alignPerception;
     float speedFactor;
+    bool  QualityBoids;
+    float LightPositionZ;
 
     glm::mat4 matriceTransition{
         {3.0f / 8.0f, 3.0f / 8.0f, 1.0f / 8.0f, 1.0f / 8.0f},
@@ -28,8 +30,8 @@ private:
 public:
     int currentState = 0;
     ImguiInterface(const glm::vec3& background_color = glm::vec3(0.0, 0.639, 1.0), const glm::vec3& targetColor = glm::vec3(0.447, 0.364, 0.0), // Default background color
-                   float separationPerception = 0.0f, float cohesionPerception = 0.0f, float alignPerception = 0.0f, float speedfactor = 80.0)
-        : background_color(background_color), targetColor(targetColor), separationPerception(separationPerception), cohesionPerception(cohesionPerception), alignPerception(alignPerception), speedFactor(speedfactor)
+                   float separationPerception = 0.0f, float cohesionPerception = 0.0f, float alignPerception = 0.0f, float speedfactor = 80.0, bool QualityBoids = true, float LightPositionZ = 0.25f)
+        : background_color(background_color), targetColor(targetColor), separationPerception(separationPerception), cohesionPerception(cohesionPerception), alignPerception(alignPerception), speedFactor(speedfactor), QualityBoids(QualityBoids), LightPositionZ(LightPositionZ)
     {
     }
 
@@ -78,6 +80,11 @@ public:
         return this->speedFactor;
     }
 
+    float getLightPositionZ() const
+    {
+        return this->LightPositionZ;
+    }
+
     void setImguiFactorAlign(float value, std::vector<Boid*>& flock)
     {
         for (Boid* boid : flock)
@@ -100,20 +107,41 @@ public:
         }
     }
 
+    void setImguiQualityBoids(bool value, std::vector<Boid*>& flock)
+    {
+        for (Boid* boid : flock)
+        {
+            boid->setImguiQualityBoids(value);
+        }
+    }
+
     void userInteface(std::vector<Boid*>& flock)
     {
         ImGui::Begin("Option");
-        ImGui::SliderFloat("Separation", &this->separationPerception, -40.0, 40.0);
-        ImGui::SliderFloat("Cohesion", &this->cohesionPerception, -40.0, 40.0);
-        ImGui::SliderFloat("Align", &this->alignPerception, -40.0, 40.0);
+        ImGui::SliderFloat("Separation", &this->separationPerception, 0.0, 40.0);
+        ImGui::SliderFloat("Cohesion", &this->cohesionPerception, 0.0, 40.0);
+        ImGui::SliderFloat("Align", &this->alignPerception, 0.0, 40.0);
         ImGui::SliderFloat("Speed", &this->speedFactor, 1.0, 100.0);
+
+        ImGui::SliderFloat("Light position Z", &this->LightPositionZ, 0.0, 0.5);
+        // ImGui::Checkbox("Boids Low quality", &this->QualityBoids);
+
+        if (ImGui::Checkbox("Boids High Quality", &this->QualityBoids))
+        {
+            setImguiQualityBoids(this->QualityBoids, flock);
+        }
+        else
+        {
+            setImguiQualityBoids(this->QualityBoids, flock);
+        }
+
         // ImGui::ColorPicker4("Background Color", (float*)&this->background_color);
         ImGui::End();
 
         // set ImGui Options
-        setImguiFactorSeparation(this->separationPerception * 0.02, flock);
-        setImguiFactorCohesion(this->cohesionPerception * 0.0005, flock);
-        setImguiFactorAlign(this->alignPerception * 0.35, flock);
+        setImguiFactorSeparation(this->separationPerception * 0.02f, flock);
+        setImguiFactorCohesion(this->cohesionPerception * 0.02f, flock);
+        setImguiFactorAlign(this->alignPerception * 0.02f, flock);
     }
 
     // Fonction pour choisir une couleur en fonction des probabilités
@@ -124,13 +152,13 @@ public:
 
         // Déterminez la couleur en fonction des probabilités de transition
         if (randNum < 0.2)
-            targetColor = glm::vec3(0.0, 0.639, 1.0); // Rouge
+            targetColor = glm::vec3(0.0, 0.639, 1.0) * 0.2f; // Rouge
         else if (randNum < 0.4)
             targetColor = glm::vec3(0.447, 0.364, 0.0); // Bleu
         else if (randNum < 0.6)
-            targetColor = glm::vec3(0.274, 0.0, 0.423); // Bleu
+            targetColor = glm::vec3(0.274, 0.0, 0.423); // Violet
         else
-            targetColor = glm::vec3(0.0, 0.0, 0.423); // Vert
+            targetColor = glm::vec3(0.0, 0.0, 0.423); // deep blue
     }
 
     void markov_setp2(glm::vec3 m)
