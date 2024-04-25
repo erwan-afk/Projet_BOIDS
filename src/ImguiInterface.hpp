@@ -21,6 +21,21 @@ private:
     bool      Fog;
     float     LightPositionZ;
 
+    float esp_flock_x = 0.0;
+    float esp_flock_y = 0.0;
+    float esp_flock_z = 0.0;
+
+    float esp_big_plant_x = 0.0;
+    float esp_big_plant_y = 0.0;
+
+    float esp_bush_x = 0.0;
+    float esp_bush_y = 0.0;
+
+    float esp_coral_x     = 0.0;
+    float esp_coral_y     = 0.0;
+    float esp_coral_scale = 0.0;
+    float esp_coral_nb    = 0.0;
+
     glm::mat4 matriceTransition{
         {3.0f / 8.0f, 3.0f / 8.0f, 1.0f / 8.0f, 1.0f / 8.0f},
         {3.0f / 12.0f, 4.0f / 12.0f, 2.0f / 12.0f, 2.0f / 12.0f},
@@ -131,13 +146,30 @@ public:
         return Fog;
     }
 
+    void setEsperanceSim(float Sim_esp_flock_x, float Sim_esp_flock_y, float Sim_esp_flock_z, float Sim_esp_big_plant_x, float Sim_esp_big_plant_y, float Sim_esp_bush_x, float Sim_esp_bush_y, float Sim_esp_coral_x, float Sim_esp_coral_y, float Sim_esp_coral_scale, float Sim_esp_coral_nb)
+    {
+        esp_flock_x     = Sim_esp_flock_x;
+        esp_flock_y     = Sim_esp_flock_y;
+        esp_flock_z     = Sim_esp_flock_z;
+        esp_big_plant_x = Sim_esp_big_plant_x;
+        esp_big_plant_y = Sim_esp_big_plant_y;
+        esp_bush_x      = Sim_esp_bush_x;
+        esp_bush_y      = Sim_esp_bush_y;
+        esp_coral_x     = Sim_esp_coral_x;
+        esp_coral_y     = Sim_esp_coral_y;
+        esp_coral_scale = Sim_esp_coral_scale;
+        esp_coral_nb    = Sim_esp_coral_nb;
+    }
+
     void userInteface(std::vector<Boid*>& flock)
     {
         ImGui::Begin("Option");
         ImGui::SliderFloat("Separation", &this->separationPerception, 0.0, 40.0);
         ImGui::SliderFloat("Cohesion", &this->cohesionPerception, 0.0, 40.0);
         ImGui::SliderFloat("Align", &this->alignPerception, 0.0, 40.0);
+        ImGui::Separator();
         ImGui::SliderFloat("Speed", &this->speedFactor, 1.0, 100.0);
+        ImGui::Separator();
         ImGui::SliderFloat("Light position Z", &this->LightPositionZ, 0.0, 0.5);
 
         if (ImGui::Checkbox("Boids High Quality", &this->QualityBoids))
@@ -146,6 +178,39 @@ public:
         }
 
         ImGui::Checkbox("Fog", &this->Fog);
+
+        ImGui::Separator();
+
+        ImGui::Text("Espérance des variables aléatoires :");
+
+        ImGui::Separator();
+
+        // Affichage des variables
+        ImGui::Text("Flock");
+        ImGui::InputFloat("X", &esp_flock_x);
+        ImGui::InputFloat("Y", &esp_flock_y);
+        ImGui::InputFloat("Z", &esp_flock_z);
+
+        ImGui::Separator(); // Séparateur visuel
+
+        ImGui::Text("Big Plant");
+        ImGui::InputFloat("X", &esp_big_plant_x);
+        ImGui::InputFloat("Y", &esp_big_plant_y);
+
+        ImGui::Separator();
+
+        ImGui::Text("Bush");
+        ImGui::InputFloat("X", &esp_bush_x);
+        ImGui::InputFloat("Y", &esp_bush_y);
+
+        ImGui::Separator();
+
+        ImGui::Text("Coral");
+        ImGui::InputFloat("X", &esp_coral_x);
+        ImGui::InputFloat("Y", &esp_coral_y);
+        ImGui::InputFloat("Scale", &esp_coral_scale);
+
+        ImGui::InputFloat("Nombre", &esp_coral_nb);
 
         ImGui::End();
 

@@ -52,73 +52,96 @@ void Simulation::Run()
     // initalisation des boids
     for (unsigned int a = 0; a < this->nb_flock; a++)
     {
-        // unique_ptr plutôt que new (ou alors pas de ptr du tout)
+        float res_flock_x = loi_normale(0.0f, 0.1f);
+        float res_flock_y = loi_normale(0.0f, 0.1f);
+        float res_flock_z = loi_normale(0.0f, 0.1f);
 
         flock.push_back(new Boid{
-            loi_normale(0.0f, 0.1f),         // x
-            loi_normale(0.0f, 0.1f),         // y
-            loi_normale(0.0f, 0.1f),         // z
+            res_flock_x,                     // x
+            res_flock_y,                     // y
+            res_flock_z,                     // z
             p6::random::number(-0.2f, 0.2f), // Angle de queue
             p6::random::number(-this->speed_factor, this->speed_factor),
             p6::random::number(-this->speed_factor, this->speed_factor),
             p6::random::number(-this->speed_factor, this->speed_factor)
         });
+
+        esp_flock_x += res_flock_x;
+        esp_flock_y += res_flock_y;
+        esp_flock_z += res_flock_z;
     }
+
+    esp_flock_x /= nb_flock;
+    esp_flock_y /= nb_flock;
+    esp_flock_z /= nb_flock;
 
     for (unsigned int b = 0; b < this->nb_big_plant; b++)
     {
+        float res_big_plant_x = loi_beta(0.5f, 0.5f);
+        float res_big_plant_y = loi_beta(0.5f, 0.5f);
+
         wildlife_big_plant.push_back(new Plant{
-            loi_beta(0.5f, 0.5f),
-            loi_beta(0.5f, 0.5f),
+            res_big_plant_x,
+            res_big_plant_y,
             p6::random::number(0.5f, 1.6f),
             0.0f,
         });
+
+        esp_big_plant_x += res_big_plant_x;
+        esp_big_plant_y += res_big_plant_y;
     }
+
+    esp_big_plant_x /= nb_big_plant;
+    esp_big_plant_y /= nb_big_plant;
 
     for (unsigned int c = 0; c < this->nb_bush; c++)
     {
+        float res_bush_x = exponentielle(1.f);
+        float res_bush_y = loi_depareto(4.f, 5.f, 0.f);
+
         wildlife_bush.push_back(new Plant{
-            exponentielle(1.f),
-            loi_depareto(4.f, 5.f, 0.f),
+            res_bush_x,
+            res_bush_y,
             p6::random::number(0.1f, 1.f),
             p6::random::number(-0.1f, 0.1f),
         });
+
+        esp_bush_x += res_bush_x;
+        esp_bush_y += res_bush_y;
     }
+
+    esp_bush_x /= nb_bush;
+    esp_bush_y /= nb_bush;
 
     for (unsigned int d = 0; d < this->nb_coral; d++)
     {
-        if (bernoulli(0.8))
+        bool res_coral_nb = bernoulli(0.8);
+        if (res_coral_nb)
         {
+            float res_coral_x     = loi_laplace(0.0f, 2.0f);
+            float res_coral_y     = loi_laplace(0.0f, 2.0f);
+            float res_coral_scale = loi_geometric(0.8f);
+
             wildlife_coral.push_back(new Plant{
-                loi_laplace(0.0f, 2.0f),
-                loi_laplace(0.0f, 2.0f),
-                loi_geometric(0.8f),
+                res_coral_x,
+                res_coral_y,
+                res_coral_scale,
                 0.0f,
             });
-        }
 
-        // std::cout << wildlife_coral[d]->scale << std::endl;
+            esp_coral_x += res_coral_x;
+            esp_coral_y += res_coral_y;
+            esp_coral_scale += res_coral_scale;
+            esp_coral_nb += 1;
+        }
     }
+
+    esp_coral_x /= nb_coral;
+    esp_coral_y /= nb_coral;
+    esp_coral_scale /= nb_coral;
+    esp_coral_nb /= nb_coral;
 
     Render();
-}
-
-glm::vec3 randomRotationAxis()
-{
-    // Initialiser le générateur de nombres aléatoires
-    std::random_device              rd;
-    std::mt19937                    gen(rd());
-    std::uniform_int_distribution<> dis(0, 1); // Distribution uniforme pour choisir entre 0 et 1
-
-    // Choisir aléatoirement entre les axes
-    if (dis(gen) == 0)
-    {
-        return glm::vec3(1.0f, 0.0f, 0.0f); // Axe X
-    }
-    else
-    {
-        return glm::vec3(0.0f, 0.0f, 1.0f); // Axe Z
-    }
 }
 
 void Simulation::Render()
@@ -129,6 +152,7 @@ void Simulation::Render()
 
     ModelShader    Shader("shaders/3D.vs.glsl", "shaders/normals.fs.glsl");
     ImguiInterface Interface;
+    Interface.setEsperanceSim(esp_flock_x, esp_flock_y, esp_flock_z, esp_big_plant_x, esp_big_plant_y, esp_bush_x, esp_bush_y, esp_coral_x, esp_coral_y, esp_coral_scale, esp_coral_nb);
 
     ModelMesh fish_high("../meshs/fish.obj");
     ModelMesh fish_low("../meshs/fish_low.obj");
