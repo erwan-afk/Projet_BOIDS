@@ -44,15 +44,20 @@ void main() {
         // Si la distance au fragment est supérieure au rayon de la sphère de lumière, l'atténuation est 0
         float attenuation = 0.0;
         if(distanceToLight <= uLights[i].radius) {
-    // Calcul de l'atténuation de la lumière basée sur la loi de l'inverse du carré de la distance
+            // Calcul de l'atténuation de la lumière basée sur la loi de l'inverse du carré de la distance
             attenuation = 1.0 - (distanceToLight / uLights[i].radius); // Vous pouvez ajuster cette formule selon vos besoins
         }
 
+        // Calcul de l'éclairage diffus pour la normale de surface du fragment
         float diff = max(dot(normalize(fragNormal), lightDirection), 0.0);
         vec3 diffuse = lightColor * lightIntensity * diff * attenuation;
 
-        // Ajout de l'éclairage diffus à la couleur finale
-        finalColor += diffuse;
+        // Calcul de l'éclairage diffus pour la normale opposée du fragment
+        float diffOpposite = max(dot(normalize(-fragNormal), lightDirection), 0.0);
+        vec3 diffuseOpposite = lightColor * lightIntensity * diffOpposite * attenuation;
+
+        // Ajout de l'éclairage diffus pour les deux normales à la couleur finale
+        finalColor += diffuse + diffuseOpposite;
     }
 
     // Application de l'effet de profondeur

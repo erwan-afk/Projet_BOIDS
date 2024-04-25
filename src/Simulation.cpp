@@ -130,12 +130,7 @@ void Simulation::Render()
     ModelMesh arpenteur("../meshs/arpenteur.obj");
     ModelMesh arpenteur_elice("../meshs/arpenteur_elice.obj");
 
-    glm::mat4 positionMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.4f, 0.0f));
-    glm::vec3 color          = glm::vec3(1.0f, 1.0f, 1.0f); // Par exemple, couleur blanche
-    float     intensity      = 5.0f;
-    float     radius         = 2.0f; // Par exemple, intensité à 1.0
-
-    Light soleil(positionMatrix, color, intensity, radius);
+    Light soleil(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.4f, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f), 5.0f, 2.0f);
     Shader.addLight(soleil);
 
     glm::mat4 positionMatrix2 = glm::translate(glm::mat4{1.f}, glm::vec3{0.8f, -0.8f, 0.8f});
