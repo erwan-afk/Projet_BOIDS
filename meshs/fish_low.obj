@@ -1,6 +1,6 @@
 # Blender 4.0.2
 # www.blender.org
-mtllib fish3-lod-low.mtl
+mtllib fish_low.mtl
 o Sketchfab_Model.020
 v -0.756204 0.163570 -0.008297
 v -0.825358 0.195978 -0.006141

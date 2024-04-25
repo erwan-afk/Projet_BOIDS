@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "Big_plant.hpp"
 #include "Boid.hpp"
+#include "Plant.hpp"
 #include "glm/fwd.hpp"
 #include "p6/p6.h"
 
@@ -39,5 +39,5 @@ public:
 
     void Run();
 
-    //~Simulation();
+    ~Simulation() {}
 };

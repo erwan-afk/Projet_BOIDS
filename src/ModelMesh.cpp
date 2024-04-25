@@ -50,17 +50,7 @@ void ModelMesh::Draw(ModelShader& Shader, glm::mat4 ProjMatrix, glm::mat4 MVMatr
 {
     glBindVertexArray(vao.id());
     // Envoyer les lumières au shader
-    // Positionner les lumières avec la ViewMatrix
-
-    // Positionner la lumière avec la ViewMatrix et la translation
-    glm::mat4 lightPositionMatrix = ViewMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.4f, 0.0f));
-    Shader.setLightPosition(0, lightPositionMatrix);
-
-    glm::mat4 lightPositionMatrix1 = Shader.lights[1].position;
-    Shader.setLightPosition(1, lightPositionMatrix1);
-
     Shader.enableLights();
-
     // Envoyer les matrices aux uniformes
     Shader.setMVPMatrix(ProjMatrix, MVMatrix);
     Shader.setMVMatrix(MVMatrix);
@@ -80,7 +70,6 @@ float ModelMesh::GetRotationMeshAngle()
 {
     rotationAngle += speed_rotation;
 
-    // Si l'angle dépasse 360 degrés, le ramener à 0
     if (rotationAngle >= 360.0f)
     {
         rotationAngle -= 360.0f;
@@ -98,7 +87,6 @@ void ModelMesh::LoadModel(const char* filePath)
 {
     OBJModel objModel;
     objModel.LoadFromFile(filePath);
-
     vertices    = objModel.GetVertexData();
     vertexCount = objModel.GetVertexCount();
     LoadTexture(objModel.getTextureLink());
@@ -287,7 +275,6 @@ void OBJModel::AddVertexData(int vIdx, int nIdx, int tIdx, std::vector<Position>
 
 OBJModel::OBJModel()
 {
-    // Constructeur par défaut, peut être vide
 }
 
 OBJModel::~OBJModel()

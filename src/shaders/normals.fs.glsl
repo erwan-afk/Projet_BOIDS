@@ -9,6 +9,7 @@ out vec4 fragColor;         // Couleur finale du fragment
 
 uniform sampler2D textureSampler;  // Échantillonneur de texture
 uniform vec3 colorFog;              // Couleur du brouillard
+uniform int uFog;
 
 // Structure pour une lumière
 struct Light {
@@ -60,11 +61,14 @@ void main() {
         finalColor += diffuse + diffuseOpposite;
     }
 
-    // Application de l'effet de profondeur
-    float depthEffect = fragLinearDepth;
-
-    // Combinaison de la couleur de la texture avec l'effet de profondeur, l'éclairage diffus et le brouillard
-    finalColor = (texColor.rgb * finalColor) * (1.0 - depthEffect) + depthEffect * colorFog;
+    if(uFog == 0) {
+        // Application de l'effet de profondeur
+        float depthEffect = fragLinearDepth;
+        // Combinaison de la couleur de la texture avec l'effet de profondeur, l'éclairage diffus et le brouillard
+        finalColor = (texColor.rgb * finalColor) * (1.0 - depthEffect) + depthEffect * colorFog;
+    } else {
+        finalColor = (texColor.rgb * finalColor);
+    }
 
     // Sortie de la couleur finale
     fragColor = vec4(finalColor, 1.0);

@@ -172,6 +172,35 @@ bool bernoulli(double p)
     }
 }
 
+float loi_laplace(float mu, float b)
+{
+    float x   = random1() - 0.5;
+    float res = mu - b * std::copysign(1.0f, x) * std::log(1.0f - 2.0f * std::fabs(x));
+    //[-1, 1];
+    res = res / 10.0f;
+    if (res <= 1.0f && res >= -1.0f)
+    {
+        return res;
+    }
+}
+
+float loi_geometric(float p)
+{
+    float res = std::log(1.0 - random1()) / std::log(1.0 - p);
+    res       = res / 10.0f;
+    if (res <= 1.0f && res >= -1.0f)
+    {
+        return 0.4f * res + 0.9f; // pour [0.5, 1.3]
+    }
+}
+
+float loi_depareto(float alpha, float a, float x0)
+{
+    float u   = random1();
+    float res = a * (1.0f - u) / pow(u, 1.0f / alpha) + x0;
+    return 2.0f * (res / 10.0f - 0.5f);
+}
+
 // ---- MARKOV -----
 
 // state 0 = eau sombre

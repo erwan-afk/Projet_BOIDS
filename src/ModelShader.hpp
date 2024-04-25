@@ -29,6 +29,7 @@ public:
         textureSamplerLocation = glGetUniformLocation(shader.id(), "textureSampler");
         colorFog               = glGetUniformLocation(shader.id(), "colorFog");
         uNumLightsLocation     = glGetUniformLocation(shader.id(), "uNumLights");
+        uFog                   = glGetUniformLocation(shader.id(), "uFog");
 
         color = glm::vec3(0.0, 0.0, 1.0);
     }
@@ -41,6 +42,7 @@ public:
     GLuint textureSamplerLocation;
     GLuint colorFog;
     GLuint uNumLightsLocation;
+    GLuint uFog;
 
     glm::vec3 color;
 
@@ -49,7 +51,7 @@ public:
     {
         shader.use();
     }
-    // Méthodes pour ajouter et configurer des lumières
+    // Méthodes pour ajouter et configurer les lumières
     void addLight(const Light& light)
     {
         lights.push_back(light);
@@ -106,6 +108,7 @@ public:
             // Envoyer l'intensité de la lumière
             glUniform1f(glGetUniformLocation(shader.id(), (lightUniformPrefix + "intensity").c_str()), lights[i].intensity);
 
+            // Envoyer le rayon de la lumière
             glUniform1f(glGetUniformLocation(shader.id(), (lightUniformPrefix + "radius").c_str()), lights[i].radius);
         }
     }
@@ -133,9 +136,19 @@ public:
 
     void setColorLight(const glm::vec3& colorChanging)
     {
-        glm::vec3 white = glm::vec3(1.0f, 1.0f, 1.0f);
-        color           = colorChanging * 1.2f;
-        // glUniform3fv(uLightColorLocation, 1, glm::value_ptr(color));
+        color = colorChanging * 1.2f;
+    }
+
+    void setFog(bool value) const
+    {
+        if (value)
+        {
+            glUniform1i(uFog, 0);
+        }
+        else
+        {
+            glUniform1i(uFog, 1);
+        }
     }
 
     const p6::Shader   shader;
